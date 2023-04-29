@@ -1,0 +1,41 @@
+---
+title: "AskMe Quick Start"
+shorttitle: "AskMe Quick Start"
+package: askme
+output: rmarkdown::html_vignette
+fig_width: 6
+fig_height: 5
+vignette: >
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteIndexEntry{askMe User Guide}
+    %\VignetteEncoding{UTF-8}
+---
+
+# Introduction
+
+`askMe` package provides associated model data and functions for cancer
+classification.
+
+```{r, message=FALSE, warning=FALSE}
+library(askme)
+```
+
+# Data from ExperimentHub
+
+```{r result="asis", echo=FALSE}
+library(knitr)
+kable(askme_models[,c("ModelID","PredictionLabelDescription")],
+    caption="AskMe supported models")
+```
+
+# Cancer type classification
+
+```{r message=FALSE}
+library(sesameData)
+betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
+askme_cancertype(betas)
+```
+
+```{r}
+sessionInfo()
+```
