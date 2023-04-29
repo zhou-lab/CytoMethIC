@@ -1,1 +1,3 @@
-# askme
+# AskMe
+
+DNA methylation-based inference
