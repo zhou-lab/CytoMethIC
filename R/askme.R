@@ -13,6 +13,7 @@ NULL
 #' @name m_cancertype_CNS65
 #' @docType data
 #' @return random forest model
+#' @export
 NULL
 
 #' Model for TCGA cancer type classification
@@ -20,6 +21,7 @@ NULL
 #' @name m_cancertype_TCGA33
 #' @docType data
 #' @return random forest model
+#' @export
 NULL
 
 #' classify cancer type

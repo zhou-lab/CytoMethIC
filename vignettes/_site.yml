@@ -1,0 +1,10 @@
+name: "askme"
+navbar:
+  title: 'AskMe'
+  left:
+    - text: "Quick Start"
+      icon: fa-home
+      href: quickstart.html
+    - text: "User Guide"
+      icon: fa-book
+      href: manual.html
