@@ -8,9 +8,19 @@
 #' @export
 NULL
 
+#' Master data frame for all prediction labels
+#'
+#' This is an internal object which will be updated on every new release
+#' 
+#' @name prediction_labels
+#' @docType data
+#' @return master sheet of prediction labels
+#' @export
+NULL
+
 #' Model for CNS cancer type classification
 #'
-#' @name m_cancertype_CNS65
+#' @name m_cancertype_CNS66
 #' @docType data
 #' @return random forest model
 #' @export

@@ -2,7 +2,8 @@
 
 export(askme_cancertype)
 export(askme_models)
-export(m_cancertype_CNS65)
+export(m_cancertype_CNS66)
 export(m_cancertype_TCGA33)
+export(prediction_labels)
 import(randomForest)
 import(utils)
