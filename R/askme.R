@@ -49,5 +49,6 @@ NULL
 askme_cancertype <- function(betas, model=m_cancertype_TCGA33) {
     require("randomForest")
     betas <- betas[match(rownames(model$importance), names(betas))]
-    predict(model, newdata=betas)
+    res <- sort(predict(model, newdata=betas, type="prob")[1,], decreasing=TRUE)
+    tibble(response = names(res)[1], prob = res[1])
 }
