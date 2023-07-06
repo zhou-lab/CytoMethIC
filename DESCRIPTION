@@ -9,7 +9,9 @@ License: Artistic-2.0
 Depends: R (>= 4.3.0), ExperimentHub, AnnotationHub
 Imports:
     sesameData,
-    randomForest
+    randomForest,
+    e1071,
+    tidyverse
 Suggests:
     sesame,
     testthat,

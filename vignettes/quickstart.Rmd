@@ -32,6 +32,7 @@ kable(askme_models[,c("ModelID","PredictionLabelDescription")],
 
 ```{r message=FALSE}
 library(sesameData)
+library(tibble)
 betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
 askme_cancertype(betas)
 ```
