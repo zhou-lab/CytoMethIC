@@ -47,11 +47,10 @@ NULL
 #' @import randomForest
 #' @export
 askme_cancertype <- function(betas, model=m_cancertype_TCGA33) {
-    require("randomForest")
-    require("dtplyr")
+    requireNamespace("randomForest")
     betas <- betas[match(rownames(model$importance), names(betas))]
     res <- sort(predict(model, newdata=betas, type="prob")[1,], decreasing=TRUE)
-    tibble(response = names(res)[1], prob = res[1])
+    tibble::tibble(response = names(res)[1], prob = res[1])
 }
 
 #' classify sample.
@@ -70,23 +69,29 @@ askme_cancertype <- function(betas, model=m_cancertype_TCGA33) {
 #' @import randomForest
 #' @import e1071
 #' @export
-askme_classify <- function(sample, model, Probe_IDs) {
-    sample <- t(as.data.frame(sample))
-    colnames(sample) <- Probe_IDs
+askme_classify <- function(betas, model) {
 
-    if (grepl("randomForest", model$call[1])) {
-        require(randomForest)
+    if (grepl("randomForest", class(model)[1])) {
+        requireNamespace(randomForest)
         sample <- sample[,rownames(model$importance)]
         res <- sort(predict(model, newdata = sample, type = "prob")[1, ], decreasing = TRUE)
-        tibble(response = names(res)[1], prob = res[1])
+        tibble::tibble(response = names(res)[1], prob = res[1])
     }
-    else if (grepl("svm", model$call[1])) {
-        require(e1071)
+    else if (grepl("svm", class(model)[1])) {
+        requireNamespace(e1071)
         sample <- t(as.data.frame(sample[,attr(model$terms, "term.labels")]))
         res <- as.character(predict(model, newdata = sample))
         probs <- attr(predict(model, newdata = sample, probability = TRUE), "probabilities")
         prob_max <- apply(probs, MARGIN = 1, FUN = max)[1]
-        tibble(response = as.character(res), prob = prob_max)
+        tibble::tibble(response = as.character(res), prob = prob_max)
+    }
+    else if(grepl("xgb", class(model)[1])) {
+        requireNamespace(xgboost)
+        feature <- as.data.frame(xgboost::xgb.importance(model=model))$Feature
+        sample <- sample[, feature]
+        sample <- xgb.DMatrix(t(as.matrix(sample)))
+        pred_probabilities <- predict(xgbModel, sample)
+
     }
 
 }
