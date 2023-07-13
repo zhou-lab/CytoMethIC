@@ -15,7 +15,10 @@ Imports:
     e1071,
     tibble,
     utils,
-    stats
+    stats,
+    xgboost,
+    sesameData,
+    tools
 Suggests:
     sesame,
     testthat,

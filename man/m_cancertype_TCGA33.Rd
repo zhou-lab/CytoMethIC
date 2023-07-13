@@ -10,3 +10,6 @@ random forest model
 \description{
 Model for TCGA cancer type classification
 }
+\examples{
+print(m_cancertype_TCGA33$ntree)
+}

@@ -1,3 +1,3 @@
 library(testthat)
 
-test_check("askMe")
+test_check("askme")

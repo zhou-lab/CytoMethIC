@@ -10,3 +10,6 @@ master sheet of prediction labels
 \description{
 This is an internal object which will be updated on every new release
 }
+\examples{
+print(prediction_labels)
+}

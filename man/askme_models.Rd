@@ -10,3 +10,6 @@ master sheet of askme model objects
 \description{
 This is an internal object which will be updated on every new release
 }
+\examples{
+print(askme_models$ModelID)
+}

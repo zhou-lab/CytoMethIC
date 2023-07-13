@@ -4,14 +4,12 @@
 \alias{askme_classify}
 \title{classify sample.}
 \usage{
-askme_classify(sample, model, Probe_IDs)
+askme_classify(betas, model)
 }
 \arguments{
-\item{sample}{DNA methylation beta}
-
 \item{model}{classification model}
 
-\item{Probe_IDs}{methylation probes used}
+\item{sample}{DNA methylation beta}
 }
 \value{
 predicted cancer type label
@@ -22,8 +20,6 @@ classify sample.
 \examples{
 library(sesameData)
 betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
-model <- readRDS("rfc_model.rds")
-probes <- readRDS("HM450.rds")
-askme_classify(betas[1], model, probes)
+askme_classify(betas, m_cancertype_TCGA33)
 ## expect PAAD
 }

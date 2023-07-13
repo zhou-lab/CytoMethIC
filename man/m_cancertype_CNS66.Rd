@@ -10,3 +10,6 @@ random forest model
 \description{
 Model for CNS cancer type classification
 }
+\examples{
+print(m_cancertype_CNS66$ntree)
+}

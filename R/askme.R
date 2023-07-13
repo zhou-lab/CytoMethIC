@@ -5,6 +5,7 @@
 #' @name askme_models
 #' @docType data
 #' @return master sheet of askme model objects
+#' @examples print(askme_models$ModelID)
 #' @export
 NULL
 
@@ -15,14 +16,15 @@ NULL
 #' @name prediction_labels
 #' @docType data
 #' @return master sheet of prediction labels
+#' @examples print(prediction_labels)
 #' @export
 NULL
-
 #' Model for CNS cancer type classification
 #'
 #' @name m_cancertype_CNS66
 #' @docType data
 #' @return random forest model
+#' @examples print(m_cancertype_CNS66$ntree)
 #' @export
 NULL
 
@@ -31,67 +33,49 @@ NULL
 #' @name m_cancertype_TCGA33
 #' @docType data
 #' @return random forest model
+#' @examples print(m_cancertype_TCGA33$ntree)
 #' @export
 NULL
 
-#' classify cancer type
-#'
-#' @param betas DNA methylation betas
-#' @param model cancer classification model
-#' @return predicted cancer type label
-#' @examples
-#' library(sesameData)
-#' betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
-#' askme_cancertype(betas, model=m_cancertype_TCGA33)
-#' ## expect PAAD
-#' @import randomForest
-#' @export
-askme_cancertype <- function(betas, model=m_cancertype_TCGA33) {
-    requireNamespace("randomForest")
-    betas <- betas[match(rownames(model$importance), names(betas))]
-    res <- sort(predict(model, newdata=betas, type="prob")[1,], decreasing=TRUE)
-    tibble::tibble(response = names(res)[1], prob = res[1])
-}
 
 #' classify sample.
 #'
-#' @param sample DNA methylation beta
+#' @param betas DNA methylation beta
 #' @param model classification model
-#' @param Probe_IDs methylation probes used
 #' @return predicted cancer type label
 #' @examples
 #' library(sesameData)
 #' betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
-#' model <- readRDS("rfc_model.rds")
-#' probes <- readRDS("HM450.rds")
-#' askme_classify(betas[1], model, probes)
+#' askme_classify(betas, m_cancertype_TCGA33)
 #' ## expect PAAD
 #' @import randomForest
 #' @import e1071
 #' @export
 askme_classify <- function(betas, model) {
-
+    betas <- t(as.data.frame(betas))
     if (grepl("randomForest", class(model)[1])) {
-        requireNamespace(randomForest)
-        sample <- sample[,rownames(model$importance)]
-        res <- sort(predict(model, newdata = sample, type = "prob")[1, ], decreasing = TRUE)
+        require(randomForest)
+        feature <- rownames(model$importance)
+        betas <- betas[,feature]
+        res <- sort(predict(model, newdata = betas, type = "prob")[1, ], decreasing = TRUE)
         tibble::tibble(response = names(res)[1], prob = res[1])
     }
     else if (grepl("svm", class(model)[1])) {
-        requireNamespace(e1071)
-        sample <- t(as.data.frame(sample[,attr(model$terms, "term.labels")]))
-        res <- as.character(predict(model, newdata = sample))
-        probs <- attr(predict(model, newdata = sample, probability = TRUE), "probabilities")
+        require(e1071)
+        betas <- t(as.data.frame(betas[,attr(model$terms, "term.labels")]))
+        res <- as.character(predict(model, newdata = betas))
+        probs <- attr(predict(model, newdata = betas, probability = TRUE), "probabilities")
         prob_max <- apply(probs, MARGIN = 1, FUN = max)[1]
         tibble::tibble(response = as.character(res), prob = prob_max)
     }
     else if(grepl("xgb", class(model)[1])) {
-        requireNamespace(xgboost)
+        require(xgboost)
         feature <- as.data.frame(xgboost::xgb.importance(model=model))$Feature
-        sample <- sample[, feature]
-        sample <- xgb.DMatrix(t(as.matrix(sample)))
-        pred_probabilities <- predict(xgbModel, sample)
+        betas <- betas[, feature]
+        betas <- xgb.DMatrix(t(as.matrix(betas)))
+        pred_probabilities <- predict(xgbModel, betas)
 
     }
 
 }
+
