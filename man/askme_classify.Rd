@@ -4,12 +4,16 @@
 \alias{askme_classify}
 \title{classify sample.}
 \usage{
-askme_classify(betas, model)
+askme_classify(betas, model, feature = NULL, label_levels = NULL)
 }
 \arguments{
+\item{betas}{DNA methylation beta}
+
 \item{model}{classification model}
 
-\item{sample}{DNA methylation beta}
+\item{feature}{list of features if not stored within model}
+
+\item{label_levels}{factor-label mapping if not stored within model}
 }
 \value{
 predicted cancer type label
