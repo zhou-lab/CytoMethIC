@@ -82,9 +82,8 @@ askme_classify <- function(betas, model, feature=NULL, label_levels=NULL) {
     }
     else if(grepl("xgb", class(model)[1])) {
         require(xgboost)
-        if(feature == NULL) stop('Must provide feature parameter with xgboost model')
-        if(label_levels == NULL) stop('Must provide label_levels parameter with xgboost model')
-        feature <- as.data.frame(xgboost::xgb.importance(model=model))$Feature
+        if(setequal(feature, NULL)) stop('Must provide feature parameter with xgboost model')
+        if(setequal(label_levels, NULL)) stop('Must provide label_levels parameter with xgboost model')
         betas <- betas[, feature]
         betas <- xgb.DMatrix(t(as.matrix(betas)))
         pred_probabilities <- predict(model, betas)
@@ -97,10 +96,10 @@ askme_classify <- function(betas, model, feature=NULL, label_levels=NULL) {
     else if(grepl("keras", class(model)[1])) {
         require(keras)
         require(tensorflow)
-        if(feature == NULL) stop('Must provide feature parameter with Keras model')
-        if(label_levels == NULL) stop('Must provide label_levels parameter with Keras model')
+        if(setequal(feature, NULL)) stop('Must provide feature parameter with Keras model')
+        if(setequal(label_levels, NULL)) stop('Must provide label_levels parameter with Keras model')
         betas <- betas[, feature]
-        betas <- xgb.DMatrix(t(as.matrix(betas)))
+        betas <- (t(as.matrix(betas)))
         pred_prob_matrix <- predict(model, as.matrix(betas))
         max_probability <- apply(pred_prob_matrix, 1, max)
         pred_label <- label_levels[apply(pred_prob_matrix, 1, which.max)]

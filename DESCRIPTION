@@ -11,18 +11,20 @@ Authors@R: c(person("Wanding", "Zhou", role = c("aut","cre"),
 License: Artistic-2.0
 Depends: R (>= 4.3.0), ExperimentHub, AnnotationHub
 Imports:
-    randomForest,
-    e1071,
     tibble,
     utils,
     stats,
-    xgboost,
     sesameData,
     tools
 Suggests:
+    randomForest,
+    e1071,
     sesame,
     testthat,
     knitr,
+    xgboost,
+    keras,
+    tensorflow,
     rmarkdown
 biocViews: ExperimentData, MicroarrayData, Genome, ExperimentHub, MethylationArrayData, CancerData, PackageTypeData
 VignetteBuilder: knitr
