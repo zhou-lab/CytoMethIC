@@ -1,0 +1,2 @@
+Title,Description,BiocViews,DataType,Species,Genome,SourceUrl,SourceVersion,RDataPath,RDataClass,Tags
+rfc_capper_CNSTumor.rds,RFC model for classifying CNS Tumor Cancer Type,GeneExpression,MethylationProfiles,Human,RNAseq,NA,NA,NA,randomForest,NA
