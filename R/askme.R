@@ -64,47 +64,47 @@ NULL
 #' @import e1071
 #' @export
 askme_classify <- function(betas, model, feature=NULL, label_levels=NULL) {
-    betas <- t(as.data.frame(betas))
-    if (grepl("randomForest", class(model)[1])) {
-        require(randomForest)
-        feature <- rownames(model$importance)
-        betas <- betas[,feature]
-        res <- sort(predict(model, newdata = betas, type = "prob")[1, ], decreasing = TRUE)
-        tibble::tibble(response = names(res)[1], prob = res[1])
-    }
-    else if (grepl("svm", class(model)[1])) {
-        require(e1071)
-        betas <- t(as.data.frame(betas[,attr(model$terms, "term.labels")]))
-        res <- as.character(predict(model, newdata = betas))
-        probs <- attr(predict(model, newdata = betas, probability = TRUE), "probabilities")
-        prob_max <- apply(probs, MARGIN = 1, FUN = max)[1]
-        tibble::tibble(response = as.character(res), prob = prob_max)
-    }
-    else if(grepl("xgb", class(model)[1])) {
-        require(xgboost)
-        if(setequal(feature, NULL)) stop('Must provide feature parameter with xgboost model')
-        if(setequal(label_levels, NULL)) stop('Must provide label_levels parameter with xgboost model')
-        betas <- betas[, feature]
-        betas <- xgb.DMatrix(t(as.matrix(betas)))
-        pred_probabilities <- predict(model, betas)
-        num_classes <- length(pred_probabilities)
-        pred_prob_matrix <- matrix(pred_probabilities, nrow = 1, ncol = num_classes, byrow = TRUE)
-        max_probability <- apply(pred_prob_matrix, 1, max)
-        pred_label <- label_levels[apply(pred_prob_matrix, 1, which.max)]
-        tibble::tibble(response = pred_label, prob = max_probability)
-    }
-    else if(grepl("keras", class(model)[1])) {
-        require(keras)
-        require(tensorflow)
-        if(setequal(feature, NULL)) stop('Must provide feature parameter with Keras model')
-        if(setequal(label_levels, NULL)) stop('Must provide label_levels parameter with Keras model')
-        betas <- betas[, feature]
-        betas <- (t(as.matrix(betas)))
-        pred_prob_matrix <- predict(model, as.matrix(betas))
-        max_probability <- apply(pred_prob_matrix, 1, max)
-        pred_label <- label_levels[apply(pred_prob_matrix, 1, which.max)]
-        tibble::tibble(response = pred_label, prob = max_probability)
-     }
-
+  betas <- t(as.data.frame(betas))
+  if (grepl("randomForest", class(model)[1])) {
+    require(randomForest)
+    feature <- rownames(model$importance)
+    betas <- betas[,feature]
+    res <- sort(predict(model, newdata = betas, type = "prob")[1, ], decreasing = TRUE)
+    tibble::tibble(response = names(res)[1], prob = res[1])
+  }
+  else if (grepl("svm", class(model)[1])) {
+    require(e1071)
+    betas <- t(as.data.frame(betas[,attr(model$terms, "term.labels")]))
+    res <- as.character(predict(model, newdata = betas))
+    probs <- attr(predict(model, newdata = betas, probability = TRUE), "probabilities")
+    prob_max <- apply(probs, MARGIN = 1, FUN = max)[1]
+    tibble::tibble(response = as.character(res), prob = prob_max)
+  }
+  else if(grepl("xgb", class(model)[1])) {
+    require(xgboost)
+    if(setequal(feature, NULL)) stop('Must provide feature parameter with xgboost model')
+    if(setequal(label_levels, NULL)) stop('Must provide label_levels parameter with xgboost model')
+    betas <- betas[, feature]
+    betas <- xgb.DMatrix(t(as.matrix(betas)))
+    pred_probabilities <- predict(model, betas)
+    num_classes <- length(pred_probabilities)
+    pred_prob_matrix <- matrix(pred_probabilities, nrow = 1, ncol = num_classes, byrow = TRUE)
+    max_probability <- apply(pred_prob_matrix, 1, max)
+    pred_label <- label_levels[apply(pred_prob_matrix, 1, which.max)]
+    tibble::tibble(response = pred_label, prob = max_probability)
+  }
+  else if(grepl("keras", class(model)[1])) {
+    require(keras)
+    require(tensorflow)
+    if(setequal(feature, NULL)) stop('Must provide feature parameter with Keras model')
+    if(setequal(label_levels, NULL)) stop('Must provide label_levels parameter with Keras model')
+    betas <- betas[, feature]
+    betas <- t(as.matrix(betas))
+    pred_prob_matrix <- model %>% predict(betas)
+    max_probability <- apply(pred_prob_matrix, 1, max)
+    highest_prob_prediction <- apply(pred_prob_matrix, 1, function(x) which.max(x))
+    pred_label <- label_levels[highest_prob_prediction]
+    tibble::tibble(response = pred_label, prob = max_probability)
+  }
 }
 
