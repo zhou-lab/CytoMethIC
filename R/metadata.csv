@@ -1,2 +1,9 @@
 Title,Description,BiocViews,DataType,Species,Genome,SourceUrl,SourceVersion,RDataPath,RDataClass,Tags
-rfc_capper_CNSTumor.rds,RFC model for classifying CNS Tumor Cancer Type,GeneExpression,MethylationProfiles,Human,RNAseq,NA,NA,NA,randomForest,NA
+"Random Forest Model for TCGA","Random Forest model that classifies into TCGA Cancertype33 labels.","MachineLearning, RandomForest","Model",NA,NA,NA,NA,"models/rfc_TCGA_cancertype33.rds","randomForest","classification, RandomForest"
+"Support Vector Machine Model for TCGA","SVM model that classifies into TCGA Cancertype33 labels.","MachineLearning, SVM","Model",NA,NA,NA,NA,"models/svm_TCGA_cancertype33.rds","ksvm","classification, SVM"
+"XGBoost Model for TCGA","XGBoost model that classifies into TCGA Cancertype33 labels.","MachineLearning, XGBoost","Model",NA,NA,NA,NA,"models/xgb_TCGA_cancertype33_pkg.rda","xgb.Booster","classification, XGBoost"
+"Multilayer Perceptron Model for TCGA","MLP model that classifies into TCGA Cancertype33 labels.","MachineLearning, MLP","Model",NA,NA,NA,NA,"models/mlp_TCGA_cancertype33_pkg.rda","mlp","classification, MLP"
+"Random Forest Model for Capper","Random Forest model that classifies into Capper CNSTumor65 labels.","MachineLearning, RandomForest","Model",NA,NA,NA,NA,"models/rfc_Capper_CNSTumor.rds","randomForest","classification, RandomForest"
+"Support Vector Machine Model for Capper","SVM model that classifies into Capper CNSTumor65 labels.","MachineLearning, SVM","Model",NA,NA,NA,NA,"models/svm_Capper_CNSTumor.rds","ksvm","classification, SVM"
+"XGBoost Model for Capper","XGBoost model that classifies into Capper CNSTumor65 labels.","MachineLearning, XGBoost","Model",NA,NA,NA,NA,"models/xgb_Capper_CNSTumor_pkg.rda","xgb.Booster","classification, XGBoost"
+"Multilayer Perceptron Model for Capper","MLP model that classifies into Capper CNSTumor65 labels.","MachineLearning, MLP","Model",NA,NA,NA,NA,"models/mlp_Capper_CNSTumor_pkg.rda","mlp","classification, MLP"

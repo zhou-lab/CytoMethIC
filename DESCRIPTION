@@ -15,16 +15,16 @@ Imports:
     utils,
     stats,
     sesameData,
-    tools
-Suggests:
+    tools,
     randomForest,
-    e1071,
+     e1071,
+     xgboost,
+     keras,
+     tensorflow
+Suggests:
     sesame,
     testthat,
     knitr,
-    xgboost,
-    keras,
-    tensorflow,
     rmarkdown
 biocViews: ExperimentData, MicroarrayData, Genome, ExperimentHub, MethylationArrayData, CancerData, PackageTypeData
 VignetteBuilder: knitr
