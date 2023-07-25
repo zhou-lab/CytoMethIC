@@ -24,6 +24,6 @@ classify sample.
 \examples{
 library(sesameData)
 betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
-askme_classify(betas, m_cancertype_TCGA33)
+askme_classify(betas, m_cancertype_CNS66)
 ## expect PAAD
 }

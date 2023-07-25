@@ -17,10 +17,10 @@ Imports:
     sesameData,
     tools,
     randomForest,
-     e1071,
-     xgboost,
-     keras,
-     tensorflow
+    e1071,
+    xgboost,
+    keras,
+    tensorflow
 Suggests:
     sesame,
     testthat,

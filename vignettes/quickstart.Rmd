@@ -24,8 +24,9 @@ library(askme)
 
 ```{r result="asis", echo=FALSE}
 library(knitr)
-kable(askme_models[,c("ModelID","PredictionLabelDescription")],
-    caption="AskMe supported models")
+kable(askme_models[, c("ModelID", "PredictionLabelDescription")],
+  caption = "AskMe supported models"
+)
 ```
 
 # Cancer type classification
@@ -34,7 +35,7 @@ kable(askme_models[,c("ModelID","PredictionLabelDescription")],
 library(tibble)
 library(sesameData)
 betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
-askme_classify(betas, m_cancertype_TCGA33)
+askme_classify(betas, m_cancertype_CNS66)
 ```
 
 ```{r}
