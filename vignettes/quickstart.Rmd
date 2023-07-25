@@ -1,7 +1,7 @@
 ---
 title: "AskMe Quick Start"
 shorttitle: "AskMe Quick Start"
-package: askme
+package: CytoMethIC
 output: rmarkdown::html_vignette
 fig_width: 6
 fig_height: 5
@@ -17,14 +17,14 @@ vignette: >
 classification.
 
 ```{r, message=FALSE, warning=FALSE}
-library(askme)
+library(CytoMethIC)
 ```
 
 # Data from ExperimentHub
 
 ```{r result="asis", echo=FALSE}
 library(knitr)
-kable(askme_models[, c("ModelID", "PredictionLabelDescription")],
+kable(cmi_models[, c("ModelID", "PredictionLabelDescription")],
   caption = "AskMe supported models"
 )
 ```
@@ -35,7 +35,7 @@ kable(askme_models[, c("ModelID", "PredictionLabelDescription")],
 library(tibble)
 library(sesameData)
 betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
-askme_classify(betas, m_cancertype_CNS66)
+cmi_classify(betas, m_cancertype_CNS66)
 ```
 
 ```{r}

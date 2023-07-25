@@ -2,10 +2,10 @@
 #'
 #' This is an internal object which will be updated on every new release
 #'
-#' @name askme_models
+#' @name cmi_models
 #' @docType data
-#' @return master sheet of askme model objects
-#' @examples print(askme_models$ModelID)
+#' @return master sheet of CytoMethIC model objects
+#' @examples print(cmi_models$ModelID)
 #' @export
 NULL
 
@@ -19,6 +19,7 @@ NULL
 #' @examples print(prediction_labels)
 #' @export
 NULL
+
 #' Model for CNS cancer type classification
 #'
 #' @name m_cancertype_CNS66
@@ -39,12 +40,12 @@ NULL
 #' @examples
 #' library(sesameData)
 #' betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
-#' askme_classify(betas, m_cancertype_CNS66)
+#' cmi_classify(betas, m_cancertype_CNS66)
 #' ## expect PAAD
 #' @import randomForest
 #' @import e1071
 #' @export
-askme_classify <- function(betas, model, feature = NULL, label_levels = NULL) {
+cmi_classify <- function(betas, model, feature = NULL, label_levels = NULL) {
   betas <- t(as.data.frame(betas))
   if (grepl("randomForest", class(model)[1])) {
     feature <- rownames(model$importance)

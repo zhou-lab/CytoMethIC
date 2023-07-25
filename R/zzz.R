@@ -1,4 +1,4 @@
 #' @import utils
 .onAttach <- function(libname, pkgname) {
-  packageStartupMessage("Loading askme.")
+  packageStartupMessage("Loading CytoMethIC.")
 }

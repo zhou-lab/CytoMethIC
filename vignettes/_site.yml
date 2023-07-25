@@ -1,6 +1,6 @@
-name: "askme"
+name: "CytoMethIC"
 navbar:
-  title: 'AskMe'
+  title: 'CytoMethIC'
   left:
     - text: "Quick Start"
       icon: fa-home
