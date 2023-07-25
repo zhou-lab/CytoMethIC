@@ -1,4 +1,4 @@
-Package: askme
+Package: CytoMethIC
 Type: Package
 Title: DNA methylation-based classification and regression
 Description: This package provides DNA methylation-based prediction of cancer type, molecular signature and clinical
