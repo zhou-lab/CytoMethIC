@@ -1,3 +1,3 @@
 library(testthat)
 
-test_check("askme")
+test_check("CytoMethIC")

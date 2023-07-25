@@ -14,18 +14,18 @@ Imports:
     tibble,
     utils,
     stats,
-    sesameData,
     tools,
-    randomForest,
+    randomForest
+Suggests:
+    sesame,
+    testthat,
+    sesameData,
+    knitr,
+    rmarkdown,
     e1071,
     xgboost,
     keras,
     tensorflow
-Suggests:
-    sesame,
-    testthat,
-    knitr,
-    rmarkdown
 biocViews: ExperimentData, MicroarrayData, Genome, ExperimentHub, MethylationArrayData, CancerData, PackageTypeData
 VignetteBuilder: knitr
 NeedsCompilation: no
