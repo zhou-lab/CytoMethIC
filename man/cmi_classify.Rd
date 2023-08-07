@@ -25,5 +25,4 @@ classify sample.
 library(sesameData)
 betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
 cmi_classify(betas, m_cancertype_CNS66)
-## expect PAAD
 }
