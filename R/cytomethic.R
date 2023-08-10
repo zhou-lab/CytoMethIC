@@ -57,8 +57,9 @@ impute_mean <- function(df, axis = 1) {
 
 
 
-#' classify sample.
-#'
+#' The cmi_classify function takes in a model and a sample, and uses the model to classify it.
+#' This function supports randomForest, e1071::svm, xgboost, and keras/tensorflow models. For xgboost and keras models,
+#' the features used in classification as well as a label mapping must be provided for output.
 #' @param betas DNA methylation beta
 #' @param model classification model
 #' @param feature list of features if not stored within model
@@ -115,6 +116,33 @@ cmi_classify <- function(betas, model, feature = NULL, label_levels = NULL) {
     stop("Package not supported")
   }
 }
+#' The cmi_classify_rda function takes in a model and a sample, and uses the model to classify it.
+#' This function supports randomForest, e1071::svm, xgboost, and keras/tensorflow models. WARNING: This will only
+#' work with CytoMethIC models on ExperimentHub, or .rda files formatted exactly how the CytoMethIC models are.
+#' @param betas DNA methylation beta
+#' @param model_path Path to the classification model
+#' @return predicted cancer type label
+#' @examples
+#' library(sesameData)
+#' betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
+#' @export
+cmi_classify_rda <- function (betas, model_path) {
+  load(model_path)
+  model_list <- get(ls(1))
+  if(grepl("keras", class(model_list[[1]])[1])) {
+    model <- keras::unserialize_model(model_list[[1]])
+    features <- model_list[[2]]
+    label_levels <- model_list [[3]]
+    cmi_classify(betas, model, features, label_levels)
+  }
+  else if(grepl("xgb", class(model_list[[1]])[1])){
+    cmi_classify(betas, model_list[[1]], model_list[[2]], model_list[[3]])
+  }
+  else {
+    cmi_classify(betas, model_list[[1]])
+  }
+}
+
 
 #' Infer sex.
 #'

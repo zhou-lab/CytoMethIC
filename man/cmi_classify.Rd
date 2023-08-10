@@ -2,7 +2,9 @@
 % Please edit documentation in R/cytomethic.R
 \name{cmi_classify}
 \alias{cmi_classify}
-\title{classify sample.}
+\title{The cmi_classify function takes in a model and a sample, and uses the model to classify it.
+This function supports randomForest, e1071::svm, xgboost, and keras/tensorflow models. For xgboost and keras models,
+the features used in classification as well as a label mapping must be provided for output.}
 \usage{
 cmi_classify(betas, model, feature = NULL, label_levels = NULL)
 }
@@ -19,7 +21,9 @@ cmi_classify(betas, model, feature = NULL, label_levels = NULL)
 predicted cancer type label
 }
 \description{
-classify sample.
+The cmi_classify function takes in a model and a sample, and uses the model to classify it.
+This function supports randomForest, e1071::svm, xgboost, and keras/tensorflow models. For xgboost and keras models,
+the features used in classification as well as a label mapping must be provided for output.
 }
 \examples{
 library(sesameData)
