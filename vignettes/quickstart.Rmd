@@ -7,13 +7,13 @@ fig_width: 6
 fig_height: 5
 vignette: >
     %\VignetteEngine{knitr::rmarkdown}
-    %\VignetteIndexEntry{askMe User Guide}
+    %\VignetteIndexEntry{CytoMethIC User Guide}
     %\VignetteEncoding{UTF-8}
 ---
 
 # Introduction
 
-`askMe` package provides associated model data and functions for cancer
+`CytoMethIC` package provides associated model data and functions for cancer
 classification.
 
 ```{r, message=FALSE, warning=FALSE}
@@ -34,8 +34,11 @@ kable(cmi_models[, c("ModelID", "PredictionLabelDescription")],
 ```{r message=FALSE}
 library(tibble)
 library(sesameData)
+library(ExperimentHub)
 betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
-cmi_classify(betas, m_cancertype_CNS66)
+eh <- ExperimentHub()
+model <- eh[["EH8395"]]
+cmi_classify(betas, model)
 ```
 
 ```{r}

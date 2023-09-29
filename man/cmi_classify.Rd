@@ -6,16 +6,12 @@
 This function supports randomForest, e1071::svm, xgboost, and keras/tensorflow models. For xgboost and keras models,
 the features used in classification as well as a label mapping must be provided for output.}
 \usage{
-cmi_classify(betas, model, feature = NULL, label_levels = NULL)
+cmi_classify(betas, cmi_model)
 }
 \arguments{
 \item{betas}{DNA methylation beta}
 
-\item{model}{classification model}
-
-\item{feature}{list of features if not stored within model}
-
-\item{label_levels}{factor-label mapping if not stored within model}
+\item{cmi_model-}{Cytomethic model downloaded from ExperimentHub}
 }
 \value{
 predicted cancer type label
@@ -27,6 +23,10 @@ the features used in classification as well as a label mapping must be provided 
 }
 \examples{
 library(sesameData)
+library(ExperimentHub)
+eh <- ExperimentHub()
+model <- eh[["EH8395"]]
 betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
-cmi_classify(betas, m_cancertype_CNS66)
+cmi_classify(betas, model)
+#Expect PAAD
 }

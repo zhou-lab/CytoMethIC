@@ -20,14 +20,6 @@ NULL
 #' @export
 NULL
 
-#' Model for CNS cancer type classification
-#'
-#' @name m_cancertype_CNS66
-#' @docType data
-#' @return random forest model
-#' @examples print(m_cancertype_CNS66$ntree)
-#' @export
-NULL
 
 #' Impute Missing Values with Mean
 #' This function replaces missing values (NA) in a data frame or matrix, default is col means.
@@ -55,35 +47,67 @@ impute_mean <- function(df, axis = 1) {
   return(df)
 }
 
+#' Impute Missing Values with Mean, for CytoMethIC models ONLY
+#' This function replaces missing values (NA) in a data frame or matrix, default is col means.
+#'
+#' @param df A dataframe or matrix
+#' @return A data frame or matrix with missing values imputed.
+
+
+impute_mean_cmi <- function(df) {
+  if (length(colnames(df)) == 6636) {
+    for (col in colnames(df)) {
+      df[is.na(df[[col]]), col] <- Capper6636MeanValues[[col]]
+    }
+  }
+  else {
+    for (col in colnames(df)) {
+      df[is.na(df[[col]]), col] <- PanCancerClassifierMeanValues[[col]]
+    }
+  }
+  df
+}
 
 
 #' The cmi_classify function takes in a model and a sample, and uses the model to classify it.
 #' This function supports randomForest, e1071::svm, xgboost, and keras/tensorflow models. For xgboost and keras models,
 #' the features used in classification as well as a label mapping must be provided for output.
 #' @param betas DNA methylation beta
-#' @param model classification model
-#' @param feature list of features if not stored within model
-#' @param label_levels factor-label mapping if not stored within model
+#' @param cmi_model- Cytomethic model downloaded from ExperimentHub
 #' @return predicted cancer type label
 #' @examples
 #' library(sesameData)
+#' library(ExperimentHub)
+#' eh <- ExperimentHub()
+#' model <- eh[["EH8395"]]
 #' betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
-#' cmi_classify(betas, m_cancertype_CNS66)
+#' cmi_classify(betas, model)
+#' #Expect PAAD
 #' @import randomForest
 #' @import stats
 #' @import tools
 #' @export
-cmi_classify <- function(betas, model, feature = NULL, label_levels = NULL) {
+cmi_classify <- function (betas, cmi_model) { #Change model_list to cmi_model
+  if(names(cmi_model)[[1]] == "model_serialized") {
+    if (!requireNamespace("keras", quietly = TRUE)) stop("keras not installed")
+    if (!requireNamespace("tensorflow", quietly = TRUE)) stop("tensorflow not installed")
+    cmi_model <- list(model = keras::unserialize_model(cmi_model[["model_serialized"]]),
+                       features = cmi_model[["features"]], label_levels = cmi_model[["label_levels"]])
+  }
   betas <- t(as.data.frame(betas))
-  if (grepl("randomForest", class(model)[1])) {
+  if (grepl("randomForest", class(cmi_model[["model"]])[1])) {
     if (!requireNamespace("randomForest", quietly = TRUE)) stop("randomForest not installed")
+    model <- cmi_model[["model"]]
     feature <- rownames(model$importance)
-    betas <- betas[, feature]
+    betas <- (betas)[, feature]
+    betas <- impute_mean_cmi(betas)
     res <- sort(predict(model, newdata = betas, type = "prob")[1, ], decreasing = TRUE)
     tibble::tibble(response = names(res)[1], prob = res[1])
-  } else if (grepl("svm", class(model)[1])) {
+  } else if (grepl("svm", class(cmi_model[["model"]])[1])) {
     if (!requireNamespace("e1071", quietly = TRUE)) stop("e1071 not installed")
+    model <- cmi_model[["model"]]
     betas <- t(as.data.frame(betas[, attr(model$terms, "term.labels")]))
+    betas <- impute_mean_cmi(betas)
     res <- as.character(predict(model, newdata = betas))
     probs <- attr(predict(model, newdata = betas, probability = TRUE), "probabilities")
     prob_max <- apply(probs, MARGIN = 1, FUN = max)[1]
@@ -92,7 +116,8 @@ cmi_classify <- function(betas, model, feature = NULL, label_levels = NULL) {
     if (!requireNamespace("xgboost", quietly = TRUE)) stop("xgboost not installed")
     if (setequal(feature, NULL)) stop("Must provide feature parameter with xgboost model")
     if (setequal(label_levels, NULL)) stop("Must provide label_levels parameter with xgboost model")
-    betas <- betas[, feature]
+    betas <- impute_mean_cmi(betas[, feature])
+    model <- cmi_model[["model"]]
     betas <- xgboost::xgb.DMatrix(t(as.matrix(betas)))
     pred_probabilities <- predict(model, betas)
     num_classes <- length(pred_probabilities)
@@ -101,11 +126,10 @@ cmi_classify <- function(betas, model, feature = NULL, label_levels = NULL) {
     pred_label <- label_levels[apply(pred_prob_matrix, 1, which.max)]
     tibble::tibble(response = pred_label, prob = max_probability)
   } else if (grepl("keras", class(model)[1])) {
-    if (!requireNamespace("keras", quietly = TRUE)) stop("keras not installed")
-    if (!requireNamespace("tensorflow", quietly = TRUE)) stop("tensorflow not installed")
     if (setequal(feature, NULL)) stop("Must provide feature parameter with Keras model")
     if (setequal(label_levels, NULL)) stop("Must provide label_levels parameter with Keras model")
-    betas <- betas[, feature]
+    betas <- impute_mean_cmi(betas[, feature])
+    model <- cmi_model[["model"]]
     betas <- t(as.matrix(betas))
     pred_prob_matrix <- model %>% predict(betas)
     max_probability <- apply(pred_prob_matrix, 1, max)
@@ -115,33 +139,12 @@ cmi_classify <- function(betas, model, feature = NULL, label_levels = NULL) {
   } else {
     stop("Package not supported")
   }
+
+
+
 }
-#' The cmi_classify_rda function takes in a model and a sample, and uses the model to classify it.
-#' This function supports randomForest, e1071::svm, xgboost, and keras/tensorflow models. WARNING: This will only
-#' work with CytoMethIC models on ExperimentHub, or .rda files formatted exactly how the CytoMethIC models are.
-#' @param betas DNA methylation beta
-#' @param model_path Path to the classification model
-#' @return predicted cancer type label
-#' @examples
-#' library(sesameData)
-#' betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
-#' @export
-cmi_classify_rda <- function (betas, model_path) {
-  load(model_path)
-  model_list <- get(ls(1))
-  if(grepl("keras", class(model_list[[1]])[1])) {
-    model <- keras::unserialize_model(model_list[[1]])
-    features <- model_list[[2]]
-    label_levels <- model_list [[3]]
-    cmi_classify(betas, model, features, label_levels)
-  }
-  else if(grepl("xgb", class(model_list[[1]])[1])){
-    cmi_classify(betas, model_list[[1]], model_list[[2]], model_list[[3]])
-  }
-  else {
-    cmi_classify(betas, model_list[[1]])
-  }
-}
+
+
 
 
 #' Infer sex.
