@@ -11,7 +11,7 @@ cmi_classify(betas, cmi_model)
 \arguments{
 \item{betas}{DNA methylation beta}
 
-\item{cmi_model-}{Cytomethic model downloaded from ExperimentHub}
+\item{cmi_model}{Cytomethic model downloaded from ExperimentHub}
 }
 \value{
 predicted cancer type label

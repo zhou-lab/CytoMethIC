@@ -1,6 +1,6 @@
 ---
-title: "AskMe Quick Start"
-shorttitle: "AskMe Quick Start"
+title: "CytoMethIC Quick Start"
+shorttitle: "CytoMethIC Quick Start"
 package: CytoMethIC
 output: rmarkdown::html_vignette
 fig_width: 6
@@ -13,11 +13,11 @@ vignette: >
 
 # Introduction
 
-`CytoMethIC` package provides associated model data and functions for cancer
-classification.
+`CytoMethIC` is a comprehensive package that provides model data and functions for easily using machine learning models that use data from the DNA methylome to classify cancer type and phenotype from a sample. The primary motivation for the development of this package is to abstract away the granular and accessibility-limiting code required to utilize machine learning models in R. Our package provides this abstraction for RandomForest, e1071 Support Vector, Extreme Gradient Boosting, and Tensorflow models. This is paired with an ExperimentHub component, which contains our lab's models developed for epigenetic cancer classification and phenotyping. This includes CNS tumor classification, Pan-cancer classification, race prediction, cell of origin classification, and subtype classification models.
 
 ```{r, message=FALSE, warning=FALSE}
 library(CytoMethIC)
+
 ```
 
 # Data from ExperimentHub
@@ -25,11 +25,12 @@ library(CytoMethIC)
 ```{r result="asis", echo=FALSE}
 library(knitr)
 kable(cmi_models[, c("ModelID", "PredictionLabelDescription")],
-  caption = "AskMe supported models"
+  caption = "CytoMethIC supported models"
 )
+
 ```
 
-# Cancer type classification
+# Pan-Cancer type classification
 
 ```{r message=FALSE}
 library(tibble)
@@ -40,6 +41,17 @@ eh <- ExperimentHub()
 model <- eh[["EH8395"]]
 cmi_classify(betas, model)
 ```
+# Brain Cancer Type Classification
+```{r message=FALSE}
+library(tibble)
+library(sesameData)
+library(GEOquery)
+betas <- GEOquery::getGEO("GSM2402974")
+eh <- ExperimentHub()
+model <- eh[["EH8400"]]
+cmi_classify(betas, model)
+```
+
 
 ```{r}
 sessionInfo()

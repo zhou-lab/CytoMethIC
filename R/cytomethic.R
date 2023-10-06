@@ -56,13 +56,15 @@ impute_mean <- function(df, axis = 1) {
 
 impute_mean_cmi <- function(df) {
   if (length(colnames(df)) == 6636) {
-    for (col in colnames(df)) {
-      df[is.na(df[[col]]), col] <- Capper6636MeanValues[[col]]
+    for (i in seq_len(length(colnames(df)))) {
+      if(is.na(df[1, i])) print(colnames(df)[[i]])
+      df[is.na(df[1, i]), i] <- BrainTumorClassifierMeanValues[1,i]
     }
   }
   else {
-    for (col in colnames(df)) {
-      df[is.na(df[[col]]), col] <- PanCancerClassifierMeanValues[[col]]
+    for (i in seq_len(length(colnames(df)))) {
+      if(is.na(df[1, i])) print(colnames(df)[[i]])
+      df[is.na(df[1, i]), i] <- PanCancerClassifierMeanValues[1,i]
     }
   }
   df
@@ -73,7 +75,7 @@ impute_mean_cmi <- function(df) {
 #' This function supports randomForest, e1071::svm, xgboost, and keras/tensorflow models. For xgboost and keras models,
 #' the features used in classification as well as a label mapping must be provided for output.
 #' @param betas DNA methylation beta
-#' @param cmi_model- Cytomethic model downloaded from ExperimentHub
+#' @param cmi_model Cytomethic model downloaded from ExperimentHub
 #' @return predicted cancer type label
 #' @examples
 #' library(sesameData)
@@ -100,6 +102,7 @@ cmi_classify <- function (betas, cmi_model) { #Change model_list to cmi_model
     model <- cmi_model[["model"]]
     feature <- rownames(model$importance)
     betas <- (betas)[, feature]
+    betas <- t(as.data.frame(betas))
     betas <- impute_mean_cmi(betas)
     res <- sort(predict(model, newdata = betas, type = "prob")[1, ], decreasing = TRUE)
     tibble::tibble(response = names(res)[1], prob = res[1])
@@ -116,7 +119,7 @@ cmi_classify <- function (betas, cmi_model) { #Change model_list to cmi_model
     if (!requireNamespace("xgboost", quietly = TRUE)) stop("xgboost not installed")
     if (setequal(feature, NULL)) stop("Must provide feature parameter with xgboost model")
     if (setequal(label_levels, NULL)) stop("Must provide label_levels parameter with xgboost model")
-    betas <- impute_mean_cmi(betas[, feature])
+    betas <- impute_mean_cmi(t(as.data.frame(betas[, feature])))
     model <- cmi_model[["model"]]
     betas <- xgboost::xgb.DMatrix(t(as.matrix(betas)))
     pred_probabilities <- predict(model, betas)
@@ -128,7 +131,7 @@ cmi_classify <- function (betas, cmi_model) { #Change model_list to cmi_model
   } else if (grepl("keras", class(model)[1])) {
     if (setequal(feature, NULL)) stop("Must provide feature parameter with Keras model")
     if (setequal(label_levels, NULL)) stop("Must provide label_levels parameter with Keras model")
-    betas <- impute_mean_cmi(betas[, feature])
+    betas <- impute_mean_cmi(t(as.data.frame(betas[, feature]))
     model <- cmi_model[["model"]]
     betas <- t(as.matrix(betas))
     pred_prob_matrix <- model %>% predict(betas)
