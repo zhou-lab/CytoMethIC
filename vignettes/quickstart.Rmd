@@ -38,21 +38,49 @@ library(sesameData)
 library(ExperimentHub)
 betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
 eh <- ExperimentHub()
-model <- eh[["EH8395"]]
-cmi_classify(betas, model)
+modelrfc <- eh[["EH8395"]]
+modelsvm <- eh[["EH8396"]]
+modelxgb <- eh[["EH8397"]]
+cmi_classify(betas, modelrfc)
+cmi_classify(betas, modelsvm)
+cmi_classify(betas, modelxgb)
+
+
 ```
-# Brain Cancer Type Classification
+# Pan-Cancer subtype classification
+
 ```{r message=FALSE}
 library(tibble)
 library(sesameData)
-library(GEOquery)
-betas <- GEOquery::getGEO("GSM2402974")
+library(ExperimentHub)
+betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
 eh <- ExperimentHub()
-model <- eh[["EH8400"]]
+model <- eh[["EH8422"]] #Pan-Cancer RFC Classifier
 cmi_classify(betas, model)
 ```
 
+# Race classification
 
+```{r message=FALSE}
+library(tibble)
+library(sesameData)
+library(ExperimentHub)
+betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
+eh <- ExperimentHub()
+model <- eh[["EH8421"]] #Pan-Cancer RFC Classifier
+cmi_classify(betas, model)
+```
+# Pan-Cancer COO classification
+
+```{r message=FALSE}
+library(tibble)
+library(sesameData)
+library(ExperimentHub)
+betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
+eh <- ExperimentHub()
+model <- eh[["EH8423"]] #Pan-Cancer RFC Classifier
+cmi_classify(betas, model)
+```
 ```{r}
 sessionInfo()
 ```
