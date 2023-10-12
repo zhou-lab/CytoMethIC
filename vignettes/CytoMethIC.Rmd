@@ -40,12 +40,8 @@ betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
 eh <- ExperimentHub()
 modelrfc <- eh[["EH8395"]]
 modelsvm <- eh[["EH8396"]]
-modelxgb <- eh[["EH8397"]]
 cmi_classify(betas, modelrfc)
 cmi_classify(betas, modelsvm)
-cmi_classify(betas, modelxgb)
-
-
 ```
 # Pan-Cancer subtype classification
 

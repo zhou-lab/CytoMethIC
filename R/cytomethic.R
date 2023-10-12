@@ -39,7 +39,7 @@ impute_mean <- function(df, axis = 1) {
     }
   } else if (axis == 2) {
     for (i in seq_len(nrow(df))){
-      df[i, is.na(df[i, ])] <- mean(df[i, ], na.rm = TRUE)
+      df[i, is.na(df[i, ])] <- mean(t(df)[,i], na.rm = TRUE)
     }
   } else {
     stop("Invalid axis. Use 1 for columns or 2 for rows.")
@@ -131,7 +131,7 @@ cmi_classify <- function (betas, cmi_model) { #Change model_list to cmi_model
   } else if (grepl("keras", class(model)[1])) {
     if (setequal(feature, NULL)) stop("Must provide feature parameter with Keras model")
     if (setequal(label_levels, NULL)) stop("Must provide label_levels parameter with Keras model")
-    betas <- impute_mean_cmi(t(as.data.frame(betas[, feature]))
+    betas <- impute_mean_cmi(t(as.data.frame(betas[, feature])))
     model <- cmi_model[["model"]]
     betas <- t(as.matrix(betas))
     pred_prob_matrix <- model %>% predict(betas)
