@@ -1,3 +1,3 @@
-# AskMe
+# CytoMethIC
 
-DNA methylation-based inference
+A collection of DNA methylation-based inference models
