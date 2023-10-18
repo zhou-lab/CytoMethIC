@@ -31,6 +31,7 @@ kable(cmi_models[, c("ModelID", "PredictionLabelDescription")],
 ```
 
 # Pan-Cancer type classification
+The below snippet shows a demonstration of the model abstraction working on random forest and support vector models from CytoMethIC models on ExperimentHub.
 
 ```{r message=FALSE}
 library(tibble)
@@ -44,30 +45,30 @@ cmi_classify(betas, modelrfc)
 cmi_classify(betas, modelsvm)
 ```
 # Pan-Cancer subtype classification
-
+The below snippet shows a demonstration of the cmi_classify function working to predict the subtype of the cancer.
 ```{r message=FALSE}
 library(tibble)
 library(sesameData)
 library(ExperimentHub)
 betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
 eh <- ExperimentHub()
-model <- eh[["EH8422"]] #Pan-Cancer RFC Classifier
+model <- eh[["EH8422"]] #Pan-Cancer Subtype RFC Classifier
 cmi_classify(betas, model)
 ```
 
 # Race classification
-
+The below snippet shows a demonstration of the cmi_classify function working to predict the race of the patient.
 ```{r message=FALSE}
 library(tibble)
 library(sesameData)
 library(ExperimentHub)
 betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
 eh <- ExperimentHub()
-model <- eh[["EH8421"]] #Pan-Cancer RFC Classifier
+model <- eh[["EH8421"]] #Race Classifier
 cmi_classify(betas, model)
 ```
 # Pan-Cancer COO classification
-
+The below snippet shows a demonstration of the cmi_classify function working to predict the cell of origin of the cancer.
 ```{r message=FALSE}
 library(tibble)
 library(sesameData)
