@@ -40,9 +40,11 @@ library(ExperimentHub)
 betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
 eh <- ExperimentHub()
 modelrfc <- eh[["EH8395"]]
-modelsvm <- eh[["EH8396"]]
 cmi_classify(betas, modelrfc)
+rm(modelrfc)
+modelsvm <- eh[["EH8396"]]
 cmi_classify(betas, modelsvm)
+rm(modelsvm)
 ```
 # Pan-Cancer subtype classification
 The below snippet shows a demonstration of the cmi_classify function working to predict the subtype of the cancer.
@@ -54,6 +56,7 @@ betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
 eh <- ExperimentHub()
 model <- eh[["EH8422"]] #Pan-Cancer Subtype RFC Classifier
 cmi_classify(betas, model)
+rm(model)
 ```
 
 # Race classification
@@ -66,6 +69,7 @@ betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
 eh <- ExperimentHub()
 model <- eh[["EH8421"]] #Race Classifier
 cmi_classify(betas, model)
+rm(model)
 ```
 # Pan-Cancer COO classification
 The below snippet shows a demonstration of the cmi_classify function working to predict the cell of origin of the cancer.
@@ -77,6 +81,7 @@ betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
 eh <- ExperimentHub()
 model <- eh[["EH8423"]] #Pan-Cancer RFC Classifier
 cmi_classify(betas, model)
+rm(model)
 ```
 ```{r}
 sessionInfo()
