@@ -5,7 +5,7 @@ Description: This package provides DNA methylation-based prediction of cancer ty
  outcomes. It provides convenience functions for missing value imputation, probe ID conversion, model interpretation
  and visualization. The package includes 3 models for classification of 33 tumor types and cell of origin. The package
  currently supports HM450, EPIC and EPICv2.
-Version: 0.99.8
+Version: 0.99.9
 Authors@R: c(person("Wanding", "Zhou", role = c("aut"),
              email = "zhouwanding@gmail.com", comment = c(ORCID = "0000-0001-9126-1932")),
              person("Jacob", "Fanale", role = c("aut", "cre"), email = "jfanale@seas.upenn.edu"))
