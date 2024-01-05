@@ -34,13 +34,15 @@ NULL
 #' @export
 impute_mean <- function(df, axis = 1) {
   if (axis == 1) {
-    for (i in seq_len(ncol(df))) {
-      df[is.na(df[, i]), i] <- mean(df[, i], na.rm = TRUE)
-    }
+    df <- data.frame(lapply(df, function(x) {
+        x[is.na(x)] <- mean(x, na.rm = TRUE)
+        return(x)
+    }))
   } else if (axis == 2) {
-    for (i in seq_len(nrow(df))){
-      df[i, is.na(df[i, ])] <- mean(t(df)[,i], na.rm = TRUE)
-    }
+    df <- t(apply(df, 1, function(x) {
+        x[is.na(x)] <- mean(x, na.rm = TRUE)
+        return(x)
+    }))
   } else {
     stop("Invalid axis. Use 1 for columns or 2 for rows.")
   }
@@ -56,16 +58,16 @@ impute_mean <- function(df, axis = 1) {
 
 impute_mean_cmi <- function(df) {
   if (length(colnames(df)) == 6636) {
-    for (i in seq_len(length(colnames(df)))) {
-      if(is.na(df[1, i])) print(colnames(df)[[i]])
-      df[is.na(df[1, i]), i] <- BrainTumorClassifierMeanValues[1,i]
-    }
+    col_indices <- seq_len(length(colnames(df)))
+    df[1, col_indices] <- mapply(function(x, y) {
+      if(is.na(x)) y else x
+    }, df[1, col_indices], BrainTumorClassifierMeanValues[1, col_indices])
   }
   else {
-    for (i in seq_len(length(colnames(df)))) {
-      if(is.na(df[1, i])) print(colnames(df)[[i]])
-      df[is.na(df[1, i]), i] <- PanCancerClassifierMeanValues[1,i]
-    }
+    col_indices <- seq_len(length(colnames(df)))
+    df[1, col_indices] <- mapply(function(x, y) {
+      if(is.na(x)) y else x
+    }, df[1, col_indices], PanCancerClassifierMeanValues[1, col_indices])
   }
   df
 }
@@ -85,9 +87,9 @@ impute_mean_cmi <- function(df) {
 #' betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
 #' cmi_classify(betas, model)
 #' #Expect PAAD
-#' @import randomForest
 #' @import stats
 #' @import tools
+#' @importFrom tibble tibble
 #' @export
 cmi_classify <- function (betas, cmi_model) { #Change model_list to cmi_model
   if(names(cmi_model)[[1]] == "model_serialized") {
@@ -97,7 +99,7 @@ cmi_classify <- function (betas, cmi_model) { #Change model_list to cmi_model
                        features = cmi_model[["features"]], label_levels = cmi_model[["label_levels"]])
   }
   betas <- t(as.data.frame(betas))
-  if (grepl("randomForest", class(cmi_model[["model"]])[1])) {
+  if (is(cmi_model[["model"]], "randomForest")) {
     if (!requireNamespace("randomForest", quietly = TRUE)) stop("randomForest not installed")
     model <- cmi_model[["model"]]
     feature <- rownames(model$importance)
@@ -105,8 +107,8 @@ cmi_classify <- function (betas, cmi_model) { #Change model_list to cmi_model
     betas <- t(as.data.frame(betas))
     betas <- impute_mean_cmi(betas)
     res <- sort(predict(model, newdata = betas, type = "prob")[1, ], decreasing = TRUE)
-    tibble::tibble(response = names(res)[1], prob = res[1])
-  } else if (grepl("svm", class(cmi_model[["model"]])[1])) {
+    tibble(response = names(res)[1], prob = res[1])
+  } else if (is(cmi_model[["model"]], "svm")) {
     if (!requireNamespace("e1071", quietly = TRUE)) stop("e1071 not installed")
     model <- cmi_model[["model"]]
     betas <- t(as.data.frame(betas[, attr(model$terms, "term.labels")]))
@@ -114,21 +116,21 @@ cmi_classify <- function (betas, cmi_model) { #Change model_list to cmi_model
     res <- as.character(predict(model, newdata = betas))
     probs <- attr(predict(model, newdata = betas, probability = TRUE), "probabilities")
     prob_max <- apply(probs, MARGIN = 1, FUN = max)[1]
-    tibble::tibble(response = as.character(res), prob = prob_max)
-  } else if (grepl("xgb", class(model)[1])) {
+    tibble(response = as.character(res), prob = prob_max)
+  } else if (is(cmi_model[["model"]], "xgb")) {
     if (!requireNamespace("xgboost", quietly = TRUE)) stop("xgboost not installed")
     if (setequal(feature, NULL)) stop("Must provide feature parameter with xgboost model")
     if (setequal(label_levels, NULL)) stop("Must provide label_levels parameter with xgboost model")
     betas <- impute_mean_cmi(t(as.data.frame(betas[, feature])))
     model <- cmi_model[["model"]]
-    betas <- xgboost::xgb.DMatrix(t(as.matrix(betas)))
+    betas <- xgb.DMatrix(t(as.matrix(betas)))
     pred_probabilities <- predict(model, betas)
     num_classes <- length(pred_probabilities)
     pred_prob_matrix <- matrix(pred_probabilities, nrow = 1, ncol = num_classes, byrow = TRUE)
     max_probability <- apply(pred_prob_matrix, 1, max)
     pred_label <- label_levels[apply(pred_prob_matrix, 1, which.max)]
-    tibble::tibble(response = pred_label, prob = max_probability)
-  } else if (grepl("keras", class(model)[1])) {
+    tibble(response = pred_label, prob = max_probability)
+  } else if (is(cmi_model[["model"]], "keras")) {
     if (setequal(feature, NULL)) stop("Must provide feature parameter with Keras model")
     if (setequal(label_levels, NULL)) stop("Must provide label_levels parameter with Keras model")
     betas <- impute_mean_cmi(t(as.data.frame(betas[, feature])))
@@ -138,7 +140,7 @@ cmi_classify <- function (betas, cmi_model) { #Change model_list to cmi_model
     max_probability <- apply(pred_prob_matrix, 1, max)
     highest_prob_prediction <- apply(pred_prob_matrix, 1, function(x) which.max(x))
     pred_label <- label_levels[highest_prob_prediction]
-    tibble::tibble(response = pred_label, prob = max_probability)
+    tibble(response = pred_label, prob = max_probability)
   } else {
     stop("Package not supported")
   }

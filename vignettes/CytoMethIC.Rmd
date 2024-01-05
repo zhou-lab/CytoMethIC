@@ -15,14 +15,14 @@ vignette: >
 
 `CytoMethIC` is a comprehensive package that provides model data and functions for easily using machine learning models that use data from the DNA methylome to classify cancer type and phenotype from a sample. The primary motivation for the development of this package is to abstract away the granular and accessibility-limiting code required to utilize machine learning models in R. Our package provides this abstraction for RandomForest, e1071 Support Vector, Extreme Gradient Boosting, and Tensorflow models. This is paired with an ExperimentHub component, which contains our lab's models developed for epigenetic cancer classification and phenotyping. This includes CNS tumor classification, Pan-cancer classification, race prediction, cell of origin classification, and subtype classification models.
 
-```{r, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE, cache=TRUE}
 library(CytoMethIC)
 
 ```
 
 # Data from ExperimentHub
 
-```{r result="asis", echo=FALSE}
+```{r result="asis", echo=FALSE, cache=TRUE}
 library(knitr)
 kable(cmi_models[, c("ModelID", "PredictionLabelDescription")],
   caption = "CytoMethIC supported models"
@@ -33,22 +33,22 @@ kable(cmi_models[, c("ModelID", "PredictionLabelDescription")],
 # Pan-Cancer type classification
 The below snippet shows a demonstration of the model abstraction working on random forest and support vector models from CytoMethIC models on ExperimentHub.
 
-```{r message=FALSE}
+```{r message=FALSE, cache=TRUE}
 library(tibble)
 library(sesameData)
 library(ExperimentHub)
 betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
 eh <- ExperimentHub()
 modelrfc <- eh[["EH8395"]]
-cmi_classify(betas, modelrfc)
+print(cmi_classify(betas, modelrfc))
 rm(modelrfc)
 modelsvm <- eh[["EH8396"]]
-cmi_classify(betas, modelsvm)
+print(cmi_classify(betas, modelsvm))
 rm(modelsvm)
 ```
 # Pan-Cancer subtype classification
 The below snippet shows a demonstration of the cmi_classify function working to predict the subtype of the cancer.
-```{r message=FALSE}
+```{r message=FALSE, cache=TRUE}
 library(tibble)
 library(sesameData)
 library(ExperimentHub)
@@ -61,7 +61,7 @@ rm(model)
 
 # Race classification
 The below snippet shows a demonstration of the cmi_classify function working to predict the race of the patient.
-```{r message=FALSE}
+```{r message=FALSE, cache=TRUE}
 library(tibble)
 library(sesameData)
 library(ExperimentHub)
@@ -73,7 +73,7 @@ rm(model)
 ```
 # Pan-Cancer COO classification
 The below snippet shows a demonstration of the cmi_classify function working to predict the cell of origin of the cancer.
-```{r message=FALSE}
+```{r message=FALSE, cache=TRUE}
 library(tibble)
 library(sesameData)
 library(ExperimentHub)
