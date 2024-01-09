@@ -12,9 +12,9 @@ Authors@R: c(person("Wanding", "Zhou", role = c("aut"),
               comment = c(ORCID = "0009-0002-0490-3269")))
 License: Artistic-2.0
 Depends: R (>= 4.3.0), ExperimentHub, AnnotationHub
-Imports: tibble, utils, stats, tools, randomForest
+Imports: tibble, utils, stats, tools
 Suggests: sesame, testthat, sesameData, knitr, rmarkdown, e1071,
-        xgboost, keras, tensorflow
+        xgboost, keras, tensorflow, randomForest
 biocViews: ExperimentData, MicroarrayData, Genome, ExperimentHub,
         MethylationArrayData, CancerData, PackageTypeData
 VignetteBuilder: knitr
