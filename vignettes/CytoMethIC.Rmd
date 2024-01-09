@@ -34,7 +34,6 @@ kable(cmi_models[, c("ModelID", "PredictionLabelDescription")],
 The below snippet shows a demonstration of the model abstraction working on random forest and support vector models from CytoMethIC models on ExperimentHub.
 
 ```{r message=FALSE, cache=TRUE}
-library(tibble)
 library(sesameData)
 library(ExperimentHub)
 betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas

@@ -8,7 +8,8 @@ Description: This package provides DNA methylation-based prediction of cancer ty
 Version: 0.99.9
 Authors@R: c(person("Wanding", "Zhou", role = c("aut"),
              email = "zhouwanding@gmail.com", comment = c(ORCID = "0000-0001-9126-1932")),
-             person("Jacob", "Fanale", role = c("aut", "cre"), email = "jfanale@seas.upenn.edu"))
+             person("Jacob", "Fanale", role = c("aut", "cre"), email = "jfanale@seas.upenn.edu",
+              comment = c(ORCID = "0009-0002-0490-3269")))
 License: Artistic-2.0
 Depends: R (>= 4.3.0), ExperimentHub, AnnotationHub
 Imports: tibble, utils, stats, tools, randomForest

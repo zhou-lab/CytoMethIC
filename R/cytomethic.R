@@ -95,7 +95,7 @@ cmi_classify <- function (betas, cmi_model) { #Change model_list to cmi_model
   if(names(cmi_model)[[1]] == "model_serialized") {
     if (!requireNamespace("keras", quietly = TRUE)) stop("keras not installed")
     if (!requireNamespace("tensorflow", quietly = TRUE)) stop("tensorflow not installed")
-    cmi_model <- list(model = keras::unserialize_model(cmi_model[["model_serialized"]]),
+    cmi_model <- list(model = unserialize_model(cmi_model[["model_serialized"]]),
                        features = cmi_model[["features"]], label_levels = cmi_model[["label_levels"]])
   }
   betas <- t(as.data.frame(betas))
