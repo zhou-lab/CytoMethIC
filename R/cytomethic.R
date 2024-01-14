@@ -33,18 +33,20 @@ NULL
 #' df <- impute_mean(df, axis = 2)
 #' @export
 impute_mean <- function(df, axis = 1) {
-  if (axis == 1) {
-    for (i in seq_len(ncol(df))) {
-      df[is.na(df[, i]), i] <- mean(df[, i], na.rm = TRUE)
+    if (axis == 1) {
+        df <- data.frame(lapply(df, function(x) {
+            x[is.na(x)] <- mean(x, na.rm = TRUE)
+            return(x)
+        }))
+    } else if (axis == 2) {
+        df <- t(apply(df, 1, function(x) {
+            x[is.na(x)] <- mean(x, na.rm = TRUE)
+            return(x)
+        }))
+    } else {
+        stop("Invalid axis. Use 1 for columns or 2 for rows.")
     }
-  } else if (axis == 2) {
-    for (i in seq_len(nrow(df))){
-      df[i, is.na(df[i, ])] <- mean(t(df)[,i], na.rm = TRUE)
-    }
-  } else {
-    stop("Invalid axis. Use 1 for columns or 2 for rows.")
-  }
-  return(df)
+    return(df)
 }
 
 #' Impute Missing Values with Mean, for CytoMethIC models ONLY
@@ -56,16 +58,16 @@ impute_mean <- function(df, axis = 1) {
 
 impute_mean_cmi <- function(df) {
   if (length(colnames(df)) == 6636) {
-    for (i in seq_len(length(colnames(df)))) {
-      if(is.na(df[1, i])) print(colnames(df)[[i]])
-      df[is.na(df[1, i]), i] <- BrainTumorClassifierMeanValues[1,i]
-    }
+    col_indices <- seq_len(length(colnames(df)))
+    df[1, col_indices] <- mapply(function(x, y) {
+      if(is.na(x)) y else x
+    }, df[1, col_indices], BrainTumorClassifierMeanValues[1, col_indices])
   }
   else {
-    for (i in seq_len(length(colnames(df)))) {
-      if(is.na(df[1, i])) print(colnames(df)[[i]])
-      df[is.na(df[1, i]), i] <- PanCancerClassifierMeanValues[1,i]
-    }
+    col_indices <- seq_len(length(colnames(df)))
+    df[1, col_indices] <- mapply(function(x, y) {
+      if(is.na(x)) y else x
+    }, df[1, col_indices], PanCancerClassifierMeanValues[1, col_indices])
   }
   df
 }
@@ -74,77 +76,133 @@ impute_mean_cmi <- function(df) {
 #' The cmi_classify function takes in a model and a sample, and uses the model to classify it.
 #' This function supports randomForest, e1071::svm, xgboost, and keras/tensorflow models. For xgboost and keras models,
 #' the features used in classification as well as a label mapping must be provided for output.
+#' 
 #' @param betas DNA methylation beta
 #' @param cmi_model Cytomethic model downloaded from ExperimentHub
+#' @param source_platform source platform
+#' If not given, will infer from probe ID.
+#' @param lift_over whether to allow liftOver to convert probe IDs
 #' @return predicted cancer type label
 #' @examples
+#' 
 #' library(sesameData)
 #' library(ExperimentHub)
-#' eh <- ExperimentHub()
-#' model <- eh[["EH8395"]]
-#' betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
+#' ## Cancer Type
+#' model = ExperimentHub()[["EH8395"]]
+#' betas = sesameDataGet("HM450.1.TCGA.PAAD")$betas
 #' cmi_classify(betas, model)
-#' #Expect PAAD
-#' @import randomForest
+#'
+#' \dontrun{
+#' ## Ethnicity
+#' basedir = "https://github.com/zhou-lab/CytoMethIC_models/raw/main/models/"
+#' model = readRDS(url(sprintf("%s/Race3_rfcTCGA_InfHum3.rds", basedir)))
+#'
+#' ## EPICv2
+#' betas = openSesame(sesameDataGet("EPICv2.8.SigDF")[[1]])
+#' cmi_classify(betas, model)
+#'
+#' ## EPIC
+#' betas = openSesame(sesameDataGet('EPIC.1.SigDF'))
+#' cmi_classify(betas, model)
+#' 
+#' }
 #' @import stats
 #' @import tools
+#' @import sesameData
+#' @import ExperimentHub
+#' @importFrom tibble tibble
+#' @importFrom sesame liftOver
+#' @importFrom methods is
 #' @export
-cmi_classify <- function (betas, cmi_model) { #Change model_list to cmi_model
-  if(names(cmi_model)[[1]] == "model_serialized") {
-    if (!requireNamespace("keras", quietly = TRUE)) stop("keras not installed")
-    if (!requireNamespace("tensorflow", quietly = TRUE)) stop("tensorflow not installed")
-    cmi_model <- list(model = keras::unserialize_model(cmi_model[["model_serialized"]]),
-                       features = cmi_model[["features"]], label_levels = cmi_model[["label_levels"]])
-  }
-  betas <- t(as.data.frame(betas))
-  if (grepl("randomForest", class(cmi_model[["model"]])[1])) {
-    if (!requireNamespace("randomForest", quietly = TRUE)) stop("randomForest not installed")
-    model <- cmi_model[["model"]]
-    feature <- rownames(model$importance)
-    betas <- (betas)[, feature]
-    betas <- t(as.data.frame(betas))
-    betas <- impute_mean_cmi(betas)
-    res <- sort(predict(model, newdata = betas, type = "prob")[1, ], decreasing = TRUE)
-    tibble::tibble(response = names(res)[1], prob = res[1])
-  } else if (grepl("svm", class(cmi_model[["model"]])[1])) {
-    if (!requireNamespace("e1071", quietly = TRUE)) stop("e1071 not installed")
-    model <- cmi_model[["model"]]
-    betas <- t(as.data.frame(betas[, attr(model$terms, "term.labels")]))
-    betas <- impute_mean_cmi(betas)
-    res <- as.character(predict(model, newdata = betas))
-    probs <- attr(predict(model, newdata = betas, probability = TRUE), "probabilities")
-    prob_max <- apply(probs, MARGIN = 1, FUN = max)[1]
-    tibble::tibble(response = as.character(res), prob = prob_max)
-  } else if (grepl("xgb", class(model)[1])) {
-    if (!requireNamespace("xgboost", quietly = TRUE)) stop("xgboost not installed")
-    if (setequal(feature, NULL)) stop("Must provide feature parameter with xgboost model")
-    if (setequal(label_levels, NULL)) stop("Must provide label_levels parameter with xgboost model")
-    betas <- impute_mean_cmi(t(as.data.frame(betas[, feature])))
-    model <- cmi_model[["model"]]
-    betas <- xgboost::xgb.DMatrix(t(as.matrix(betas)))
-    pred_probabilities <- predict(model, betas)
-    num_classes <- length(pred_probabilities)
-    pred_prob_matrix <- matrix(pred_probabilities, nrow = 1, ncol = num_classes, byrow = TRUE)
-    max_probability <- apply(pred_prob_matrix, 1, max)
-    pred_label <- label_levels[apply(pred_prob_matrix, 1, which.max)]
-    tibble::tibble(response = pred_label, prob = max_probability)
-  } else if (grepl("keras", class(model)[1])) {
-    if (setequal(feature, NULL)) stop("Must provide feature parameter with Keras model")
-    if (setequal(label_levels, NULL)) stop("Must provide label_levels parameter with Keras model")
-    betas <- impute_mean_cmi(t(as.data.frame(betas[, feature])))
-    model <- cmi_model[["model"]]
-    betas <- t(as.matrix(betas))
-    pred_prob_matrix <- model %>% predict(betas)
-    max_probability <- apply(pred_prob_matrix, 1, max)
-    highest_prob_prediction <- apply(pred_prob_matrix, 1, function(x) which.max(x))
-    pred_label <- label_levels[highest_prob_prediction]
-    tibble::tibble(response = pred_label, prob = max_probability)
-  } else {
-    stop("Package not supported")
-  }
+cmi_classify <- function (betas, cmi_model, source_platform = NULL,
+    lift_over = TRUE) { #Change model_list to cmi_model
+    
+    if(names(cmi_model)[[1]] == "model_serialized") {
+        requireNamespace("keras")
+        requireNamespace("tensorflow")
+        cmi_model <- list(model = keras::unserialize_model(
+            cmi_model[["model_serialized"]]),
+            features = cmi_model[["features"]],
+            label_levels = cmi_model[["label_levels"]])
+    }
 
+    if (!is.matrix(betas)) {
+        betas <- cbind(betas)
+    }
 
-
+    features <- cmi_model$features
+    idx <- match(features, rownames(betas))
+    if (sum(is.na(idx)) > 0 || sum(is.na(betas[idx,])) > 0) {
+        if (lift_over) {
+            source_platform <- sesameData::sesameData_check_platform(
+                source_platform, rownames(betas))
+            target_platform <- cmi_model$feature_platform
+            if (is.null(target_platform)) {
+                target_platform <- "HM450"
+            }
+            betas <- liftOver(betas, source_platform = source_platform,
+                target_platform = target_platform, impute=TRUE)
+        } else {
+            stop("Missing data. Consider turning on lift_over to do probe ID conversion and imputation.")
+        }
+    }
+    betas <- betas[features,,drop=FALSE]
+    ## betas <- impute_mean_cmi(betas)
+    if (is(cmi_model[["model"]], "randomForest")) {
+        requireNamespace("randomForest")
+        res <- sort(predict(cmi_model$model,
+            newdata = t(betas), type = "prob")[1,], decreasing = TRUE)
+        tibble(response = names(res)[1], prob = res[1])
+        ## res <- sort(predict(model, newdata = betas, type = "prob")[1, ], decreasing = TRUE)
+        ## tibble(response = names(res)[1], prob = res[1])
+        ## betas <- t(as.data.frame(betas))
+        ## features <- rownames(model$importance)
+        ## model <- cmi_model[["model"]]
+        ## feature <- rownames(model$importance)
+        ## betas <- (betas)[, feature]
+        ## betas <- t(as.data.frame(betas))
+        ## betas <- impute_mean_cmi(betas)
+        ## res <- sort(predict(model, newdata = betas, type = "prob")[1, ], decreasing = TRUE)
+        ## tibble(response = names(res)[1], prob = res[1])
+    } else if (is(cmi_model[["model"]], "svm")) {
+        betas <- t(as.data.frame(betas))
+        if (!requireNamespace("e1071", quietly = TRUE)) stop("e1071 not installed")
+        model <- cmi_model[["model"]]
+        betas <- t(as.data.frame(betas[, attr(model$terms, "term.labels")]))
+        betas <- impute_mean_cmi(betas)
+        res <- as.character(predict(model, newdata = betas))
+        probs <- attr(predict(model, newdata = betas, probability = TRUE), "probabilities")
+        prob_max <- apply(probs, MARGIN = 1, FUN = max)[1]
+        tibble(response = as.character(res), prob = prob_max)
+    } else if (is(cmi_model[["model"]], "xgb")) {
+        betas <- t(as.data.frame(betas))
+        if (!requireNamespace("xgboost", quietly = TRUE)) stop("xgboost not installed")
+        if (setequal(features, NULL)) stop("Must provide feature parameter with xgboost model")
+        if (setequal(cmi_model$label_levels, NULL)) stop("Must provide label_levels parameter with xgboost model")
+        betas <- impute_mean_cmi(t(as.data.frame(betas[, features])))
+        model <- cmi_model[["model"]]
+        betas <- xgboost::xgb.DMatrix(t(as.matrix(betas)))
+        pred_probabilities <- predict(model, betas)
+        num_classes <- length(pred_probabilities)
+        pred_prob_matrix <- matrix(pred_probabilities, nrow = 1, ncol = num_classes, byrow = TRUE)
+        max_probability <- apply(pred_prob_matrix, 1, max)
+        pred_label <- cmi_model$label_levels[apply(pred_prob_matrix, 1, which.max)]
+        tibble(response = pred_label, prob = max_probability)
+    } else if (is(cmi_model[["model"]], "keras")) {
+        betas <- t(as.data.frame(betas))
+        if (setequal(features, NULL)) stop("Must provide feature parameter with Keras model")
+        if (setequal(cmi_model$label_levels, NULL)) stop("Must provide label_levels parameter with Keras model")
+        betas <- impute_mean_cmi(t(as.data.frame(betas[, features])))
+        model <- cmi_model[["model"]]
+        betas <- t(as.matrix(betas))
+        pred_prob_matrix <- predict(model, betas)
+        max_probability <- apply(pred_prob_matrix, 1, max)
+        highest_prob_prediction <- apply(pred_prob_matrix, 1, function(x) which.max(x))
+        pred_label <- cmi_model$label_levels[highest_prob_prediction]
+        tibble(response = pred_label, prob = max_probability)
+    } else {
+        stop("Package not supported")
+    }
 }
 
 #' Infer sex.
@@ -209,32 +267,3 @@ inferSex <- function(betas) {
   }
 }
 
-#' Infer Ethnicity
-#'
-#' This function uses both the built-in rsprobes 
-#' better be background subtracted and dyebias corrected for
-#' best accuracy
-#'
-#' @param rs_values a rs vector
-#' @param verbose print more messages
-#' @return WHITE, ASIAN, BLACK OR AFRICAN AMERICAN
-#' @import sesameData
-#' @examples
-#' \dontrun{
-#' ## EPICv2
-#' betas = openSesame(sesameDataGet("EPICv2.8.SigDF")[[1]])
-#' inferEthnicity(betas)
-#'
-#' ## EPIC
-#' betas = openSesame(sesameDataGet('EPIC.1.SigDF'))
-#' inferEthnicity(betas)
-#' 
-#' }
-#' @export
-inferEthnicity <- function(rs_values, model, platform, verbose = FALSE) {
-    rs_values <- liftOver(rs_values,
-        source_platform = platform, target_platform = "HM450", impute=TRUE)
-    rs_values <- rs_value[rownames(model$importance)]
-    requireNamespace("randomForest")
-    as.character(predict(model, rs_values))
-}
