@@ -147,23 +147,11 @@ cmi_classify <- function (betas, cmi_model, source_platform = NULL,
         }
     }
     betas <- betas[features,,drop=FALSE]
-    ## betas <- impute_mean_cmi(betas)
     if (is(cmi_model[["model"]], "randomForest")) {
         requireNamespace("randomForest")
         res <- sort(predict(cmi_model$model,
             newdata = t(betas), type = "prob")[1,], decreasing = TRUE)
         tibble(response = names(res)[1], prob = res[1])
-        ## res <- sort(predict(model, newdata = betas, type = "prob")[1, ], decreasing = TRUE)
-        ## tibble(response = names(res)[1], prob = res[1])
-        ## betas <- t(as.data.frame(betas))
-        ## features <- rownames(model$importance)
-        ## model <- cmi_model[["model"]]
-        ## feature <- rownames(model$importance)
-        ## betas <- (betas)[, feature]
-        ## betas <- t(as.data.frame(betas))
-        ## betas <- impute_mean_cmi(betas)
-        ## res <- sort(predict(model, newdata = betas, type = "prob")[1, ], decreasing = TRUE)
-        ## tibble(response = names(res)[1], prob = res[1])
     } else if (is(cmi_model[["model"]], "svm")) {
         betas <- t(as.data.frame(betas))
         if (!requireNamespace("e1071", quietly = TRUE)) stop("e1071 not installed")
