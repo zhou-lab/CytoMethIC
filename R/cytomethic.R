@@ -147,9 +147,6 @@ cmi_classify <- function (betas, cmi_model) { #Change model_list to cmi_model
 
 }
 
-
-
-
 #' Infer sex.
 #'
 #' @param betas DNA methylation beta
@@ -210,4 +207,34 @@ inferSex <- function(betas) {
   } else {
     "FEMALE"
   }
+}
+
+#' Infer Ethnicity
+#'
+#' This function uses both the built-in rsprobes 
+#' better be background subtracted and dyebias corrected for
+#' best accuracy
+#'
+#' @param rs_values a rs vector
+#' @param verbose print more messages
+#' @return WHITE, ASIAN, BLACK OR AFRICAN AMERICAN
+#' @import sesameData
+#' @examples
+#' \dontrun{
+#' ## EPICv2
+#' betas = openSesame(sesameDataGet("EPICv2.8.SigDF")[[1]])
+#' inferEthnicity(betas)
+#'
+#' ## EPIC
+#' betas = openSesame(sesameDataGet('EPIC.1.SigDF'))
+#' inferEthnicity(betas)
+#' 
+#' }
+#' @export
+inferEthnicity <- function(rs_values, model, platform, verbose = FALSE) {
+    rs_values <- liftOver(rs_values,
+        source_platform = platform, target_platform = "HM450", impute=TRUE)
+    rs_values <- rs_value[rownames(model$importance)]
+    requireNamespace("randomForest")
+    as.character(predict(model, rs_values))
 }
