@@ -30,23 +30,26 @@ the features used in classification as well as a label mapping must be provided 
 
 library(sesameData)
 library(ExperimentHub)
+basedir = "https://github.com/zhou-lab/CytoMethIC_models/raw/main/models/"
+
 ## Cancer Type
 model = ExperimentHub()[["EH8395"]]
-betas = sesameDataGet("HM450.1.TCGA.PAAD")$betas
-cmi_classify(betas, model)
+cmi_classify(openSesame(sesameDataGet("EPICv2.8.SigDF")[[1]]), model)
+cmi_classify(openSesame(sesameDataGet('EPIC.1.SigDF')), model)
+cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, model)
+
+## Sex
+model = readRDS(url(sprintf("\%s/Sex2_HM450.rds", basedir)))
+cmi_classify(openSesame(sesameDataGet("EPICv2.8.SigDF")[[1]]), model)
+cmi_classify(openSesame(sesameDataGet('EPIC.1.SigDF')), model)
+cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, model)
 
 \dontrun{
 ## Ethnicity
-basedir = "https://github.com/zhou-lab/CytoMethIC_models/raw/main/models/"
 model = readRDS(url(sprintf("\%s/Race3_rfcTCGA_InfHum3.rds", basedir)))
-
-## EPICv2
-betas = openSesame(sesameDataGet("EPICv2.8.SigDF")[[1]])
-cmi_classify(betas, model)
-
-## EPIC
-betas = openSesame(sesameDataGet('EPIC.1.SigDF'))
-cmi_classify(betas, model)
+cmi_classify(openSesame(sesameDataGet("EPICv2.8.SigDF")[[1]]), model)
+cmi_classify(openSesame(sesameDataGet('EPIC.1.SigDF')), model)
+cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, model)
 
 }
 }
