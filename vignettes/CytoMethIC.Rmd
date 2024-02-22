@@ -12,7 +12,7 @@ vignette: >
 ---
 # Installation
 To use CytoMethIC, you need to install the package from Bioconductor. If you don't have the BiocManager package installed, install it first:
-```{r, message=FALSE, warning=FALSE, cache=TRUE, eval=FALSE, }
+```{r, message=FALSE, warning=FALSE, cache=TRUE, eval=FALSE}
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
   install.packages("BiocManager")
 }
