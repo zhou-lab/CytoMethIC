@@ -101,7 +101,7 @@ impute_mean_cmi <- function(df) {
 #' cmi_classify(openSesame(sesameDataGet('EPIC.1.SigDF')), model)
 #' cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, model)
 #' 
-#' \dontrun{
+#' \donttest{
 #' ## Ethnicity
 #' model = readRDS(url(sprintf("%s/Race3_rfcTCGA_InfHum3.rds", basedir)))
 #' cmi_classify(openSesame(sesameDataGet("EPICv2.8.SigDF")[[1]]), model)

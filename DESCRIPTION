@@ -11,7 +11,7 @@ Authors@R: c(person("Wanding", "Zhou", role = c("aut"),
              person("Jacob", "Fanale", role = c("aut", "cre"), email = "jfanale@seas.upenn.edu",
               comment = c(ORCID = "0009-0002-0490-3269")))
 License: Artistic-2.0
-Depends: R (>= 4.3.0), ExperimentHub
+Depends: R (>= 4.4.0), ExperimentHub
 Imports: tibble, utils, stats, tools, sesame, methods, sesameData
 Suggests: randomForest, testthat, knitr, rmarkdown, e1071,
         xgboost, keras, tensorflow
