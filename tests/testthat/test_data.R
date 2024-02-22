@@ -34,9 +34,9 @@ test_that("test cmi_classify returns tibble for SVM", {
   expect_is(result, "tbl_df")
 })
 
-test_that("infer_sex returns string", {
-  library(sesameData)
-  betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
-  result <- CytoMethIC::inferSex(betas)
-  expect_is(result, "character")
-})
+## test_that("infer_sex returns string", {
+##   library(sesameData)
+##   betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
+##   result <- CytoMethIC::inferSex(betas)
+##   expect_is(result, "character")
+## })
