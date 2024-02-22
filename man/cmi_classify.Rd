@@ -28,7 +28,7 @@ the features used in classification as well as a label mapping must be provided 
 }
 \examples{
 
-library(sesameData)
+library(sesame)
 library(ExperimentHub)
 basedir = "https://github.com/zhou-lab/CytoMethIC_models/raw/main/models/"
 

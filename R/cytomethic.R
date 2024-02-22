@@ -85,7 +85,7 @@ impute_mean_cmi <- function(df) {
 #' @return predicted cancer type label
 #' @examples
 #' 
-#' library(sesameData)
+#' library(sesame)
 #' library(ExperimentHub)
 #' basedir = "https://github.com/zhou-lab/CytoMethIC_models/raw/main/models/"
 #' 
