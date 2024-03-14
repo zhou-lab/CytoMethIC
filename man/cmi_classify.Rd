@@ -6,12 +6,17 @@
 This function supports randomForest, e1071::svm, xgboost, and keras/tensorflow models. For xgboost and keras models,
 the features used in classification as well as a label mapping must be provided for output.}
 \usage{
-cmi_classify(betas, cmi_model)
+cmi_classify(betas, cmi_model, source_platform = NULL, lift_over = TRUE)
 }
 \arguments{
 \item{betas}{DNA methylation beta}
 
 \item{cmi_model}{Cytomethic model downloaded from ExperimentHub}
+
+\item{source_platform}{source platform
+If not given, will infer from probe ID.}
+
+\item{lift_over}{whether to allow mLiftOver to convert probe IDs}
 }
 \value{
 predicted cancer type label
@@ -22,11 +27,29 @@ This function supports randomForest, e1071::svm, xgboost, and keras/tensorflow m
 the features used in classification as well as a label mapping must be provided for output.
 }
 \examples{
-library(sesameData)
+
+library(sesame)
 library(ExperimentHub)
-eh <- ExperimentHub()
-model <- eh[["EH8395"]]
-betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
-cmi_classify(betas, model)
-#Expect PAAD
+basedir = "https://github.com/zhou-lab/CytoMethIC_models/raw/main/models/"
+
+## Cancer Type
+model = ExperimentHub()[["EH8395"]]
+cmi_classify(openSesame(sesameDataGet("EPICv2.8.SigDF")[[1]]), model)
+cmi_classify(openSesame(sesameDataGet('EPIC.1.SigDF')), model)
+cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, model)
+
+## Sex
+model = readRDS(url(sprintf("\%s/Sex2_HM450.rds", basedir)))
+cmi_classify(openSesame(sesameDataGet("EPICv2.8.SigDF")[[1]]), model)
+cmi_classify(openSesame(sesameDataGet('EPIC.1.SigDF')), model)
+cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, model)
+
+\donttest{
+## Ethnicity
+model = readRDS(url(sprintf("\%s/Race3_rfcTCGA_InfHum3.rds", basedir)))
+cmi_classify(openSesame(sesameDataGet("EPICv2.8.SigDF")[[1]]), model)
+cmi_classify(openSesame(sesameDataGet('EPIC.1.SigDF')), model)
+cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, model)
+
+}
 }

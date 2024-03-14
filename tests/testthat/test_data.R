@@ -1,10 +1,5 @@
 context("data")
 
-test_that("test='HM27.address' gives correct data", {
-  dt <- sesameData::sesameDataGet("HM27.address")
-  expect_is(dt, "list")
-})
-
 test_that("Impute mean functions properly", {
   df <- data.frame(a = c(NA, 2, 3, 4), b = c(1, 6, 5, NA), c = c(3, 6, 7, 8))
   df_imputed_cols <- CytoMethIC::impute_mean(df)
@@ -39,9 +34,9 @@ test_that("test cmi_classify returns tibble for SVM", {
   expect_is(result, "tbl_df")
 })
 
-test_that("infer_sex returns string", {
-  library(sesameData)
-  betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
-  result <- CytoMethIC::inferSex(betas)
-  expect_is(result, "character")
-})
+## test_that("infer_sex returns string", {
+##   library(sesameData)
+##   betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
+##   result <- CytoMethIC::inferSex(betas)
+##   expect_is(result, "character")
+## })

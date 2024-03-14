@@ -2,10 +2,14 @@
 
 export(cmi_classify)
 export(cmi_models)
+
 export(impute_mean)
-export(inferSex)
 export(prediction_labels)
-import(randomForest)
+import(ExperimentHub)
+import(sesameData)
 import(stats)
 import(tools)
 import(utils)
+importFrom(sesame, mLiftOver)
+importFrom(methods,is)
+importFrom(tibble,tibble)

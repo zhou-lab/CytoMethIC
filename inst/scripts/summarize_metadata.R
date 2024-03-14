@@ -19,5 +19,15 @@ print_model_summary <- function(model_data) {
 apply(as.data.frame(metadata), 1, print_model_summary)
 
 
+print(paste("All models for CNS tumor classification were trained on publically available samples" ,
+" from Capper, D. et al. DNA methylation-based classification of central nervous system tumours. These models use
+features from the probabilistic feature importance report of an initial RandomForest model.",
+"All other models were trained using publically available samples from The Cancer Genome Atlas,"
+ ,"and use the most variable CpG probes in the dataset as features."))
+
+
+
+
+
 
 
