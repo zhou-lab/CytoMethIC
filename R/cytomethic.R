@@ -8,7 +8,6 @@
 #' @examples print(cmi_models$ModelID)
 #' @export
 NULL
-
 #' Master data frame for all prediction labels
 #'
 #' This is an internal object which will be updated on every new release
