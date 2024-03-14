@@ -57,7 +57,7 @@ cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, ExperimentHub()[["EH8422"
 
 # Ethnicity classification
 
-The below snippet shows a demonstration of the cmi_classify function working to predict the race of the patient.
+The below snippet shows a demonstration of the cmi_classify function working to predict the ethnicity of the patient.
 ```{r cyto6, message=FALSE}
 cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, ExperimentHub()[["EH8421"]])
 ```
