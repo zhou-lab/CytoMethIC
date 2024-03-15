@@ -16,7 +16,7 @@ cmi_classify(betas, cmi_model, source_platform = NULL, lift_over = TRUE)
 \item{source_platform}{source platform
 If not given, will infer from probe ID.}
 
-\item{lift_over}{whether to allow liftOver to convert probe IDs}
+\item{lift_over}{whether to allow mLiftOver to convert probe IDs}
 }
 \value{
 predicted cancer type label

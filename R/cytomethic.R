@@ -8,7 +8,6 @@
 #' @examples print(cmi_models$ModelID)
 #' @export
 NULL
-
 #' Master data frame for all prediction labels
 #'
 #' This is an internal object which will be updated on every new release
@@ -49,29 +48,6 @@ impute_mean <- function(df, axis = 1) {
     return(df)
 }
 
-#' Impute Missing Values with Mean, for CytoMethIC models ONLY
-#' This function replaces missing values (NA) in a data frame or matrix, default is col means.
-#'
-#' @param df A dataframe or matrix
-#' @return A data frame or matrix with missing values imputed.
-
-
-impute_mean_cmi <- function(df) {
-  if (length(colnames(df)) == 6636) {
-    col_indices <- seq_len(length(colnames(df)))
-    df[1, col_indices] <- mapply(function(x, y) {
-      if(is.na(x)) y else x
-    }, df[1, col_indices], BrainTumorClassifierMeanValues[1, col_indices])
-  }
-  else {
-    col_indices <- seq_len(length(colnames(df)))
-    df[1, col_indices] <- mapply(function(x, y) {
-      if(is.na(x)) y else x
-    }, df[1, col_indices], PanCancerClassifierMeanValues[1, col_indices])
-  }
-  df
-}
-
 
 #' The cmi_classify function takes in a model and a sample, and uses the model to classify it.
 #' This function supports randomForest, e1071::svm, xgboost, and keras/tensorflow models. For xgboost and keras models,
@@ -81,7 +57,7 @@ impute_mean_cmi <- function(df) {
 #' @param cmi_model Cytomethic model downloaded from ExperimentHub
 #' @param source_platform source platform
 #' If not given, will infer from probe ID.
-#' @param lift_over whether to allow liftOver to convert probe IDs
+#' @param lift_over whether to allow mLiftOver to convert probe IDs
 #' @return predicted cancer type label
 #' @examples
 #' 
@@ -114,7 +90,7 @@ impute_mean_cmi <- function(df) {
 #' @import sesameData
 #' @import ExperimentHub
 #' @importFrom tibble tibble
-#' @importFrom sesame liftOver
+#' @importFrom sesame mLiftOver
 #' @importFrom methods is
 #' @export
 cmi_classify <- function (betas, cmi_model, source_platform = NULL,
@@ -143,7 +119,7 @@ cmi_classify <- function (betas, cmi_model, source_platform = NULL,
             if (is.null(target_platform)) {
                 target_platform <- "HM450"
             }
-            betas <- liftOver(betas, source_platform = source_platform,
+            betas <- mLiftOver(betas, source_platform = source_platform,
                 target_platform = target_platform, impute=TRUE)
         } else {
             stop("Missing data. Consider turning on lift_over to do probe ID conversion and imputation.")
@@ -170,7 +146,6 @@ cmi_classify <- function (betas, cmi_model, source_platform = NULL,
         if (!requireNamespace("e1071", quietly = TRUE)) stop("e1071 not installed")
         model <- cmi_model[["model"]]
         betas <- t(as.data.frame(betas[, attr(model$terms, "term.labels")]))
-        betas <- impute_mean_cmi(betas)
         res <- as.character(predict(model, newdata = betas))
         probs <- attr(predict(model, newdata = betas, probability = TRUE), "probabilities")
         prob_max <- apply(probs, MARGIN = 1, FUN = max)[1]
@@ -180,7 +155,7 @@ cmi_classify <- function (betas, cmi_model, source_platform = NULL,
         if (!requireNamespace("xgboost", quietly = TRUE)) stop("xgboost not installed")
         if (setequal(features, NULL)) stop("Must provide feature parameter with xgboost model")
         if (setequal(cmi_model$label_levels, NULL)) stop("Must provide label_levels parameter with xgboost model")
-        betas <- impute_mean_cmi(t(as.data.frame(betas[, features])))
+        betas <- (t(as.data.frame(betas[, features])))
         model <- cmi_model[["model"]]
         betas <- xgboost::xgb.DMatrix(t(as.matrix(betas)))
         pred_probabilities <- predict(model, betas)
@@ -193,7 +168,7 @@ cmi_classify <- function (betas, cmi_model, source_platform = NULL,
         betas <- t(as.data.frame(betas))
         if (setequal(features, NULL)) stop("Must provide feature parameter with Keras model")
         if (setequal(cmi_model$label_levels, NULL)) stop("Must provide label_levels parameter with Keras model")
-        betas <- impute_mean_cmi(t(as.data.frame(betas[, features])))
+        betas <- t(as.data.frame(betas[, features]))
         model <- cmi_model[["model"]]
         betas <- t(as.matrix(betas))
         pred_prob_matrix <- predict(model, betas)

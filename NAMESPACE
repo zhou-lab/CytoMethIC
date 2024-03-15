@@ -2,6 +2,7 @@
 
 export(cmi_classify)
 export(cmi_models)
+
 export(impute_mean)
 export(prediction_labels)
 import(ExperimentHub)
@@ -9,6 +10,6 @@ import(sesameData)
 import(stats)
 import(tools)
 import(utils)
+importFrom(sesame, mLiftOver)
 importFrom(methods,is)
-importFrom(sesame,liftOver)
 importFrom(tibble,tibble)

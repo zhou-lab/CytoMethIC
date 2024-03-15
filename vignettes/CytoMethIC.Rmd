@@ -6,7 +6,7 @@ output: rmarkdown::html_vignette
 fig_width: 6
 fig_height: 5
 vignette: >
-    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEngine{knitr::knitr}
     %\VignetteIndexEntry{CytoMethIC User Guide}
     %\VignetteEncoding{UTF-8}
 ---
@@ -45,37 +45,33 @@ kable(cmi_models[, c("ModelID", "PredictionLabelDescription")],
 The below snippet shows a demonstration of the model abstraction working on random forest and support vector models from CytoMethIC models on ExperimentHub.
 
 ```{r cyto4, message=FALSE}
-betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
-cmi_classify(betas, ExperimentHub()[["EH8395"]])
-cmi_classify(betas, ExperimentHub()[["EH8396"]])
+cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, ExperimentHub()[["EH8395"]])
+cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, ExperimentHub()[["EH8396"]])
 ```
 
 # Pan-Cancer subtype classification
 The below snippet shows a demonstration of the cmi_classify function working to predict the subtype of the cancer.
 ```{r cyto5, message=FALSE}
-betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
-cmi_classify(betas, ExperimentHub()[["EH8422"]])
+cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, ExperimentHub()[["EH8422"]])
 ```
 
-# Race classification
+# Ethnicity classification
 
-The below snippet shows a demonstration of the cmi_classify function working to predict the race of the patient.
+The below snippet shows a demonstration of the cmi_classify function working to predict the ethnicity of the patient.
 ```{r cyto6, message=FALSE}
-betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
-cmi_classify(betas, ExperimentHub()[["EH8421"]])
+cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, ExperimentHub()[["EH8421"]])
 ```
 # Pan-Cancer COO classification
 The below snippet shows a demonstration of the cmi_classify function working to predict the cell of origin of the cancer.
 ```{r cyto7, message=FALSE}
-betas <- sesameDataGet("HM450.1.TCGA.PAAD")$betas
-cmi_classify(betas, ExperimentHub()[["EH8423"]])
+cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, ExperimentHub()[["EH8423"]])
 ```
 
-# Ethnicity
-
+# Ethnicity From GitHub Link
+In addition to ExperimentHub Models, this package also supports using models from GitHub URLs. Note that https://github.com/zhou-lab/CytoMethIC_models will be the most frequently updated public repository of our lab's classifiers.
 ```{r cyto8}
-cmi_model = readRDS(url("https://github.com/zhou-lab/CytoMethIC_models/raw/main/models/Race3_rfcTCGA_InfHum3.rds"))
-betas = openSesame(sesameDataGet("EPICv2.8.SigDF")[[1]])
+cmi_model <- readRDS(url("https://github.com/zhou-lab/CytoMethIC_models/raw/main/models/Race3_rfcTCGA_InfHum3.rds"))
+betas <- openSesame(sesameDataGet("EPICv2.8.SigDF")[[1]])
 cmi_classify(betas, cmi_model)
 ```
 
