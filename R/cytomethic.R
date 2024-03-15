@@ -126,7 +126,10 @@ cmi_classify <- function (betas, cmi_model, source_platform = NULL,
         }
     }
     betas <- betas[features,,drop=FALSE]
-    if (cmi_model$model_name == "Threshold-based Sex Model") {
+
+    if (is(cmi_model$model, "function")) {
+        cmi_model$model(betas)
+    } else if (cmi_model$model_name == "Threshold-based Sex Model") {
         vals <- mean(betas[cmi_model$model$hyperMALE,1], na.rm = TRUE) -
             betas[cmi_model$model$hypoMALE,1]
         dd <- density(na.omit(vals))
@@ -180,3 +183,6 @@ cmi_classify <- function (betas, cmi_model, source_platform = NULL,
         stop("Package not supported")
     }
 }
+
+
+
