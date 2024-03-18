@@ -78,55 +78,60 @@ clean_features <- function(
     ## if still have missing values
     idx <- match(features, names(betas))
     if (sum(!is.na(idx)) == 0 && !lift_over) {
-        stop("No overlapping probes. Consider lift_over=T")
+        stop("No overlapping probes. Consider lift_over=TRUE")
     }
     if (sum(!is.na(betas[idx])) == 0 ||  # all-NA
         (sum(is.na(betas[idx])) > 0 && ( # some NA and model requires all
             is.null(cmi_model$features_require_all) ||
             cmi_model$features_require_all))) {
-        stop(sprintf("Missing %d/%d features. Consider lift_over=T",
+        stop(sprintf("Missing %d/%d features. Consider lift_over=TRUE",
             sum(is.na(betas[idx])), sum(!is.na(idx))))
     }
     betas <- betas[features]
 }
 
-#' The cmi_classify function takes in a model and a sample, and uses the model to classify it.
-#' This function supports randomForest, e1071::svm, xgboost, and keras/tensorflow models. For xgboost and keras models,
-#' the features used in classification as well as a label mapping must be provided for output.
+#' The cmi_classify function takes in a model and a sample, and uses the model
+#' to classify it.  This function supports randomForest, e1071::svm, xgboost,
+#' and keras/tensorflow models. For xgboost and keras models, the features used
+#' in classification as well as a label mapping must be provided for output.
 #' 
 #' @param betas DNA methylation beta
 #' @param cmi_model Cytomethic model downloaded from ExperimentHub
 #' @param source_platform source platform
 #' If not given, will infer from probe ID.
 #' @param lift_over whether to allow mLiftOver to convert probe IDs
+#' @param BPPARAM use MulticoreParam(n) for parallel processing
 #' @param verbose be verbose with warning
 #' @return predicted cancer type label
 #' @examples
 #' 
 #' library(sesame)
 #' library(ExperimentHub)
-#' basedir = "https://github.com/zhou-lab/CytoMethIC_models/raw/main/models/"
-#' 
+#' library(CytoMethIC)
+#'
 #' ## Cancer Type
 #' model = ExperimentHub()[["EH8395"]]
-#' cmi_classify(openSesame(sesameDataGet("EPICv2.8.SigDF")[[1]]), model)
-#' cmi_classify(openSesame(sesameDataGet('EPIC.1.SigDF')), model)
-#' cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, model)
+#' cmi_classify(openSesame(sesameDataGet("EPICv2.8.SigDF")[[1]]), model, lift_over=TRUE)
+#' cmi_classify(openSesame(sesameDataGet('EPIC.1.SigDF')), model, lift_over=TRUE)
+#' cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, model, lift_over=TRUE)
 #'
+#' \donttest{
+#' library(tibble)
+#' basedir = "https://github.com/zhou-lab/CytoMethIC_models/raw/main/models/"
+#' 
 #' ## Sex
 #' model = readRDS(url(sprintf("%s/Sex2_HM450.rds", basedir)))
-#' cmi_classify(openSesame(sesameDataGet("EPICv2.8.SigDF")[[1]]), model)
-#' cmi_classify(openSesame(sesameDataGet('EPIC.1.SigDF')), model)
-#' cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, model)
+#' cmi_classify(openSesame(sesameDataGet("EPICv2.8.SigDF")[[1]]), model, lift_over=TRUE)
+#' cmi_classify(openSesame(sesameDataGet('EPIC.1.SigDF')), model, lift_over=TRUE)
+#' cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, model, lift_over=TRUE)
 #' 
-#' \donttest{
 #' ## Ethnicity
 #' model = readRDS(url(sprintf("%s/Race3_rfcTCGA_InfHum3.rds", basedir)))
-#' cmi_classify(openSesame(sesameDataGet("EPICv2.8.SigDF")[[1]]), model)
-#' cmi_classify(openSesame(sesameDataGet('EPIC.1.SigDF')), model)
-#' cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, model)
-#' 
+#' cmi_classify(openSesame(sesameDataGet("EPICv2.8.SigDF")[[1]]), model, lift_over=TRUE)
+#' cmi_classify(openSesame(sesameDataGet('EPIC.1.SigDF')), model, lift_over=TRUE)
+#' cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, model, lift_over=TRUE)
 #' }
+#'
 #' @import stats
 #' @import tools
 #' @import sesameData
@@ -143,10 +148,10 @@ cmi_classify <- function(betas, cmi_model,
     if(names(cmi_model)[[1]] == "model_serialized") {
         requireNamespace("keras")
         requireNamespace("tensorflow")
-        cmi_model <- list(model = keras::unserialize_model(
-            cmi_model[["model_serialized"]]),
-            features = cmi_model[["features"]],
-            label_levels = cmi_model[["label_levels"]])
+        cmi_model <- list(
+            model = keras::unserialize_model(cmi_model$model_serialized),
+            features = cmi_model$features,
+            label_levels = cmi_model$label_levels)
     }
 
     if (is.matrix(betas)) {
@@ -163,37 +168,27 @@ cmi_classify <- function(betas, cmi_model,
 
     if (is(cmi_model$model, "function")) {
         cmi_model$model(betas)
-    } else if (cmi_model$model_name == "Threshold-based Sex Model") {
-        vals <- mean(betas[cmi_model$model$hyperMALE], na.rm = TRUE) -
-            betas[cmi_model$model$hypoMALE]
-        dd <- density(na.omit(vals))
-        if (dd$x[which.max(dd$y)] > 0.4) {
-            res <- "MALE"
-        } else {
-            res <- "FEMALE"
-        }
-        tibble(response = res, prob = NA)
-    } else if (is(cmi_model[["model"]], "randomForest")) {
+    } else if (is(cmi_model$model, "randomForest")) {
         requireNamespace("randomForest")
         res <- sort(predict(cmi_model$model,
             newdata = t(betas), type = "prob")[1,], decreasing = TRUE)
         tibble(response = names(res)[1], prob = res[1])
-    } else if (is(cmi_model[["model"]], "svm")) {
+    } else if (is(cmi_model$model, "svm")) {
         betas <- t(as.data.frame(betas))
         if (!requireNamespace("e1071", quietly = TRUE)) stop("e1071 not installed")
-        model <- cmi_model[["model"]]
+        model <- cmi_model$model
         betas <- t(as.data.frame(betas[, attr(model$terms, "term.labels")]))
         res <- as.character(predict(model, newdata = betas))
         probs <- attr(predict(model, newdata = betas, probability = TRUE), "probabilities")
         prob_max <- apply(probs, MARGIN = 1, FUN = max)[1]
         tibble(response = as.character(res), prob = prob_max)
-    } else if (is(cmi_model[["model"]], "xgb")) {
+    } else if (is(cmi_model$model, "xgb")) {
         betas <- t(as.data.frame(betas))
         if (!requireNamespace("xgboost", quietly = TRUE)) stop("xgboost not installed")
-        if (setequal(features, NULL)) stop("Must provide feature parameter with xgboost model")
-        if (setequal(cmi_model$label_levels, NULL)) stop("Must provide label_levels parameter with xgboost model")
-        betas <- (t(as.data.frame(betas[, features])))
-        model <- cmi_model[["model"]]
+        if (is.null(cmi_model$features)) stop("Must provide feature parameter with xgboost model")
+        if (is.null(cmi_model$label_levels)) stop("Must provide label_levels parameter with xgboost model")
+        betas <- (t(as.data.frame(betas[, cmi_model$features])))
+        model <- cmi_model$model
         betas <- xgboost::xgb.DMatrix(t(as.matrix(betas)))
         pred_probabilities <- predict(model, betas)
         num_classes <- length(pred_probabilities)
@@ -201,14 +196,13 @@ cmi_classify <- function(betas, cmi_model,
         max_probability <- apply(pred_prob_matrix, 1, max)
         pred_label <- cmi_model$label_levels[apply(pred_prob_matrix, 1, which.max)]
         tibble(response = pred_label, prob = max_probability)
-    } else if (is(cmi_model[["model"]], "keras")) {
+    } else if (is(cmi_model$model, "keras")) {
+        if (is.null(cmi_model$features)) stop("Must provide feature parameter with Keras model")
+        if (is.null(cmi_model$label_levels)) stop("Must provide label_levels parameter with Keras model")
         betas <- t(as.data.frame(betas))
-        if (setequal(features, NULL)) stop("Must provide feature parameter with Keras model")
-        if (setequal(cmi_model$label_levels, NULL)) stop("Must provide label_levels parameter with Keras model")
-        betas <- t(as.data.frame(betas[, features]))
-        model <- cmi_model[["model"]]
+        betas <- t(as.data.frame(betas[, cmi_model$features]))
         betas <- t(as.matrix(betas))
-        pred_prob_matrix <- predict(model, betas)
+        pred_prob_matrix <- predict(cmi_model$model, betas)
         max_probability <- apply(pred_prob_matrix, 1, max)
         highest_prob_prediction <- apply(pred_prob_matrix, 1, function(x) which.max(x))
         pred_label <- cmi_model$label_levels[highest_prob_prediction]

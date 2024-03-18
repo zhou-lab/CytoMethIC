@@ -12,14 +12,28 @@ Authors@R: c(person("Wanding", "Zhou", role = c("aut"),
               comment = c(ORCID = "0009-0002-0490-3269")))
 License: Artistic-2.0
 Depends: R (>= 4.4.0), ExperimentHub
-Imports: tibble, utils, stats, tools, sesame, methods, sesameData, BiocParallel
-Suggests: BiocStyle, randomForest, testthat, knitr, rmarkdown, e1071,
-        xgboost, keras, tensorflow
+Imports: tibble,
+         utils,
+         stats,
+         tools,
+         sesame,
+         methods,
+         sesameData,
+         BiocParallel
+VignetteBuilder: knitr
+Suggests: BiocStyle,
+          randomForest,
+          testthat,
+          knitr,
+          rmarkdown,
+          e1071,
+          xgboost,
+          keras,
+          tensorflow
 URL: https://github.com/zhou-lab/CytoMethIC
 BugReports: https://github.com/zhou-lab/CytoMethIC/issues
 biocViews: ExperimentData, MicroarrayData, Genome, ExperimentHub,
         MethylationArrayData, CancerData, PackageTypeData
-VignetteBuilder: knitr
 NeedsCompilation: no
 RoxygenNote: 7.3.1
 Encoding: UTF-8

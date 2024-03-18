@@ -2,11 +2,19 @@
 % Please edit documentation in R/cytomethic.R
 \name{cmi_classify}
 \alias{cmi_classify}
-\title{The cmi_classify function takes in a model and a sample, and uses the model to classify it.
-This function supports randomForest, e1071::svm, xgboost, and keras/tensorflow models. For xgboost and keras models,
-the features used in classification as well as a label mapping must be provided for output.}
+\title{The cmi_classify function takes in a model and a sample, and uses the model
+to classify it.  This function supports randomForest, e1071::svm, xgboost,
+and keras/tensorflow models. For xgboost and keras models, the features used
+in classification as well as a label mapping must be provided for output.}
 \usage{
-cmi_classify(betas, cmi_model, source_platform = NULL, lift_over = TRUE)
+cmi_classify(
+  betas,
+  cmi_model,
+  source_platform = NULL,
+  lift_over = FALSE,
+  verbose = FALSE,
+  BPPARAM = SerialParam()
+)
 }
 \arguments{
 \item{betas}{DNA methylation beta}
@@ -17,39 +25,47 @@ cmi_classify(betas, cmi_model, source_platform = NULL, lift_over = TRUE)
 If not given, will infer from probe ID.}
 
 \item{lift_over}{whether to allow mLiftOver to convert probe IDs}
+
+\item{verbose}{be verbose with warning}
+
+\item{BPPARAM}{use MulticoreParam(n) for parallel processing}
 }
 \value{
 predicted cancer type label
 }
 \description{
-The cmi_classify function takes in a model and a sample, and uses the model to classify it.
-This function supports randomForest, e1071::svm, xgboost, and keras/tensorflow models. For xgboost and keras models,
-the features used in classification as well as a label mapping must be provided for output.
+The cmi_classify function takes in a model and a sample, and uses the model
+to classify it.  This function supports randomForest, e1071::svm, xgboost,
+and keras/tensorflow models. For xgboost and keras models, the features used
+in classification as well as a label mapping must be provided for output.
 }
 \examples{
 
 library(sesame)
 library(ExperimentHub)
-basedir = "https://github.com/zhou-lab/CytoMethIC_models/raw/main/models/"
+library(CytoMethIC)
 
 ## Cancer Type
 model = ExperimentHub()[["EH8395"]]
-cmi_classify(openSesame(sesameDataGet("EPICv2.8.SigDF")[[1]]), model)
-cmi_classify(openSesame(sesameDataGet('EPIC.1.SigDF')), model)
-cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, model)
+cmi_classify(openSesame(sesameDataGet("EPICv2.8.SigDF")[[1]]), model, lift_over=TRUE)
+cmi_classify(openSesame(sesameDataGet('EPIC.1.SigDF')), model, lift_over=TRUE)
+cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, model, lift_over=TRUE)
+
+\donttest{
+library(tibble)
+basedir = "https://github.com/zhou-lab/CytoMethIC_models/raw/main/models/"
 
 ## Sex
 model = readRDS(url(sprintf("\%s/Sex2_HM450.rds", basedir)))
-cmi_classify(openSesame(sesameDataGet("EPICv2.8.SigDF")[[1]]), model)
-cmi_classify(openSesame(sesameDataGet('EPIC.1.SigDF')), model)
-cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, model)
+cmi_classify(openSesame(sesameDataGet("EPICv2.8.SigDF")[[1]]), model, lift_over=TRUE)
+cmi_classify(openSesame(sesameDataGet('EPIC.1.SigDF')), model, lift_over=TRUE)
+cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, model, lift_over=TRUE)
 
-\donttest{
 ## Ethnicity
 model = readRDS(url(sprintf("\%s/Race3_rfcTCGA_InfHum3.rds", basedir)))
-cmi_classify(openSesame(sesameDataGet("EPICv2.8.SigDF")[[1]]), model)
-cmi_classify(openSesame(sesameDataGet('EPIC.1.SigDF')), model)
-cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, model)
-
+cmi_classify(openSesame(sesameDataGet("EPICv2.8.SigDF")[[1]]), model, lift_over=TRUE)
+cmi_classify(openSesame(sesameDataGet('EPIC.1.SigDF')), model, lift_over=TRUE)
+cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, model, lift_over=TRUE)
 }
+
 }
