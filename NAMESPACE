@@ -2,7 +2,6 @@
 
 export(cmi_classify)
 export(cmi_models)
-export(impute_mean)
 export(prediction_labels)
 import(BiocParallel)
 import(ExperimentHub)

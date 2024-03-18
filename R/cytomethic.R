@@ -8,6 +8,7 @@
 #' @examples print(cmi_models$ModelID)
 #' @export
 NULL
+
 #' Master data frame for all prediction labels
 #'
 #' This is an internal object which will be updated on every new release
@@ -18,35 +19,6 @@ NULL
 #' @examples print(prediction_labels)
 #' @export
 NULL
-
-
-#' Impute Missing Values with Mean
-#' This function replaces missing values (NA) in a data frame or matrix, default is col means.
-#'
-#' @param df A dataframe or matrix
-#' @param axis A single integer. Use 1 to impute column means (default), and 2 to impute row means.
-#' @return A data frame or matrix with missing values imputed.
-#' @examples
-#' df <- data.frame(a = c(1, 2, NA, 4), b = c(NA, 2, 3, 4))
-#' df <- impute_mean(df)
-#' df <- impute_mean(df, axis = 2)
-#' @export
-impute_mean <- function(df, axis = 1) {
-    if (axis == 1) {
-        df <- data.frame(lapply(df, function(x) {
-            x[is.na(x)] <- mean(x, na.rm = TRUE)
-            return(x)
-        }))
-    } else if (axis == 2) {
-        df <- t(apply(df, 1, function(x) {
-            x[is.na(x)] <- mean(x, na.rm = TRUE)
-            return(x)
-        }))
-    } else {
-        stop("Invalid axis. Use 1 for columns or 2 for rows.")
-    }
-    return(df)
-}
 
 clean_features <- function(
     betas, cmi_model,
@@ -114,23 +86,6 @@ clean_features <- function(
 #' cmi_classify(openSesame(sesameDataGet("EPICv2.8.SigDF")[[1]]), model, lift_over=TRUE)
 #' cmi_classify(openSesame(sesameDataGet('EPIC.1.SigDF')), model, lift_over=TRUE)
 #' cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, model, lift_over=TRUE)
-#'
-#' \donttest{
-#' library(tibble)
-#' basedir = "https://github.com/zhou-lab/CytoMethIC_models/raw/main/models/"
-#' 
-#' ## Sex
-#' model = readRDS(url(sprintf("%s/Sex2_HM450.rds", basedir)))
-#' cmi_classify(openSesame(sesameDataGet("EPICv2.8.SigDF")[[1]]), model, lift_over=TRUE)
-#' cmi_classify(openSesame(sesameDataGet('EPIC.1.SigDF')), model, lift_over=TRUE)
-#' cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, model, lift_over=TRUE)
-#' 
-#' ## Ethnicity
-#' model = readRDS(url(sprintf("%s/Race3_rfcTCGA_InfHum3.rds", basedir)))
-#' cmi_classify(openSesame(sesameDataGet("EPICv2.8.SigDF")[[1]]), model, lift_over=TRUE)
-#' cmi_classify(openSesame(sesameDataGet('EPIC.1.SigDF')), model, lift_over=TRUE)
-#' cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, model, lift_over=TRUE)
-#' }
 #'
 #' @import stats
 #' @import tools

@@ -1,16 +1,5 @@
 context("data")
 
-test_that("Impute mean functions properly", {
-  df <- data.frame(a = c(NA, 2, 3, 4), b = c(1, 6, 5, NA), c = c(3, 6, 7, 8))
-  df_imputed_cols <- CytoMethIC::impute_mean(df)
-  df_imputed_rows <- CytoMethIC::impute_mean(df, axis = 2)
-  expect_true(df_imputed_cols[1,1] == 3)
-  expect_true(df_imputed_cols[4,2] == 4)
-  expect_true(df_imputed_rows[1,1] == 2)
-  expect_true((df_imputed_rows[4,2]) == 6)
-
-})
-
 test_that("test cmi_classify returns tibble for RFC", {
   library(tibble)
   library(sesameData)

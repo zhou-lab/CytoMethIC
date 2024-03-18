@@ -51,21 +51,4 @@ cmi_classify(openSesame(sesameDataGet("EPICv2.8.SigDF")[[1]]), model, lift_over=
 cmi_classify(openSesame(sesameDataGet('EPIC.1.SigDF')), model, lift_over=TRUE)
 cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, model, lift_over=TRUE)
 
-\donttest{
-library(tibble)
-basedir = "https://github.com/zhou-lab/CytoMethIC_models/raw/main/models/"
-
-## Sex
-model = readRDS(url(sprintf("\%s/Sex2_HM450.rds", basedir)))
-cmi_classify(openSesame(sesameDataGet("EPICv2.8.SigDF")[[1]]), model, lift_over=TRUE)
-cmi_classify(openSesame(sesameDataGet('EPIC.1.SigDF')), model, lift_over=TRUE)
-cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, model, lift_over=TRUE)
-
-## Ethnicity
-model = readRDS(url(sprintf("\%s/Race3_rfcTCGA_InfHum3.rds", basedir)))
-cmi_classify(openSesame(sesameDataGet("EPICv2.8.SigDF")[[1]]), model, lift_over=TRUE)
-cmi_classify(openSesame(sesameDataGet('EPIC.1.SigDF')), model, lift_over=TRUE)
-cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, model, lift_over=TRUE)
-}
-
 }
