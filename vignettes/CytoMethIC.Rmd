@@ -7,7 +7,7 @@ output: BiocStyle::html_document
 fig_width: 6
 fig_height: 5
 vignette: >
-    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEngine{knitr::knitr}
     %\VignetteIndexEntry{CytoMethIC User Guide}
     %\VignetteEncoding{UTF-8}
     
