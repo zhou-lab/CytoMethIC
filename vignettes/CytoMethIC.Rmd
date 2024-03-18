@@ -2,7 +2,7 @@
 title: "CytoMethIC Quick Start"
 shorttitle: "CytoMethIC Quick Start"
 package: CytoMethIC
-output: rmarkdown::html_vignette
+output: BiocStyle::html_document
 fig_width: 6
 fig_height: 5
 vignette: >

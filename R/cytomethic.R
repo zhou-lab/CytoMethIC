@@ -48,6 +48,47 @@ impute_mean <- function(df, axis = 1) {
     return(df)
 }
 
+clean_features <- function(
+    betas, cmi_model,
+    source_platform = source_platform,
+    lift_over = lift_over, verbose = verbose) {
+    
+    features <- cmi_model$features
+    idx <- match(features, names(betas))
+    if (sum(is.na(idx)) == 0 && sum(is.na(betas[idx])) == 0) {
+        return(betas[idx])
+    }
+    
+    if (verbose) {
+        warning(sprintf("Missing %d/%d features.",
+            sum(is.na(betas[idx])), length(idx)))
+    }
+
+    if (lift_over) {
+        source_platform <- sesameData::sesameData_check_platform(
+            source_platform, rownames(betas))
+        target_platform <- cmi_model$feature_platform
+        if (is.null(target_platform)) {
+            target_platform <- "HM450"
+        }
+        betas <- mLiftOver(betas, source_platform = source_platform,
+            target_platform = target_platform, impute=TRUE)
+    }
+
+    ## if still have missing values
+    idx <- match(features, names(betas))
+    if (sum(!is.na(idx)) == 0 && !lift_over) {
+        stop("No overlapping probes. Consider lift_over=T")
+    }
+    if (sum(!is.na(betas[idx])) == 0 ||  # all-NA
+        (sum(is.na(betas[idx])) > 0 && ( # some NA and model requires all
+            is.null(cmi_model$features_require_all) ||
+            cmi_model$features_require_all))) {
+        stop(sprintf("Missing %d/%d features. Consider lift_over=T",
+            sum(is.na(betas[idx])), sum(!is.na(idx))))
+    }
+    betas <- betas[features]
+}
 
 #' The cmi_classify function takes in a model and a sample, and uses the model to classify it.
 #' This function supports randomForest, e1071::svm, xgboost, and keras/tensorflow models. For xgboost and keras models,
@@ -58,6 +99,7 @@ impute_mean <- function(df, axis = 1) {
 #' @param source_platform source platform
 #' If not given, will infer from probe ID.
 #' @param lift_over whether to allow mLiftOver to convert probe IDs
+#' @param verbose be verbose with warning
 #' @return predicted cancer type label
 #' @examples
 #' 
@@ -89,12 +131,14 @@ impute_mean <- function(df, axis = 1) {
 #' @import tools
 #' @import sesameData
 #' @import ExperimentHub
+#' @import BiocParallel
 #' @importFrom tibble tibble
 #' @importFrom sesame mLiftOver
 #' @importFrom methods is
 #' @export
-cmi_classify <- function (betas, cmi_model, source_platform = NULL,
-    lift_over = TRUE) { #Change model_list to cmi_model
+cmi_classify <- function(betas, cmi_model,
+    source_platform = NULL, lift_over = FALSE, verbose = FALSE,
+    BPPARAM = SerialParam()) {
     
     if(names(cmi_model)[[1]] == "model_serialized") {
         requireNamespace("keras")
@@ -105,33 +149,23 @@ cmi_classify <- function (betas, cmi_model, source_platform = NULL,
             label_levels = cmi_model[["label_levels"]])
     }
 
-    if (!is.matrix(betas)) {
-        betas <- cbind(betas)
+    if (is.matrix(betas)) {
+        return(do.call(rbind, bplapply(seq_len(ncol(betas)), function(i) {
+            cmi_classify(betas[,i], cmi_model, source_platform = source_platform,
+                lift_over = lift_over, verbose = verbose)
+        }, BPPARAM = BPPARAM)))
     }
+    stopifnot(is.numeric(betas))
 
-    features <- cmi_model$features
-    idx <- match(features, rownames(betas))
-    if (sum(is.na(idx)) > 0 || sum(is.na(betas[idx,])) > 0) {
-        if (lift_over) {
-            source_platform <- sesameData::sesameData_check_platform(
-                source_platform, rownames(betas))
-            target_platform <- cmi_model$feature_platform
-            if (is.null(target_platform)) {
-                target_platform <- "HM450"
-            }
-            betas <- mLiftOver(betas, source_platform = source_platform,
-                target_platform = target_platform, impute=TRUE)
-        } else {
-            stop("Missing data. Consider turning on lift_over to do probe ID conversion and imputation.")
-        }
-    }
-    betas <- betas[features,,drop=FALSE]
+    betas <- clean_features(betas, cmi_model,
+        source_platform = source_platform,
+        lift_over = lift_over, verbose = verbose)
 
     if (is(cmi_model$model, "function")) {
         cmi_model$model(betas)
     } else if (cmi_model$model_name == "Threshold-based Sex Model") {
-        vals <- mean(betas[cmi_model$model$hyperMALE,1], na.rm = TRUE) -
-            betas[cmi_model$model$hypoMALE,1]
+        vals <- mean(betas[cmi_model$model$hyperMALE], na.rm = TRUE) -
+            betas[cmi_model$model$hypoMALE]
         dd <- density(na.omit(vals))
         if (dd$x[which.max(dd$y)] > 0.4) {
             res <- "MALE"
