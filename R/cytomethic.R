@@ -62,7 +62,7 @@ clean_features <- function(
     betas <- betas[features]
 }
 
-#' The cmi_classify function takes in a model and a sample, and uses the model
+#' The cmi_predict function takes in a model and a sample, and uses the model
 #' to classify it.  This function supports randomForest, e1071::svm, xgboost,
 #' and keras/tensorflow models. For xgboost and keras models, the features used
 #' in classification as well as a label mapping must be provided for output.
@@ -83,9 +83,9 @@ clean_features <- function(
 #'
 #' ## Cancer Type
 #' model = ExperimentHub()[["EH8395"]]
-#' cmi_classify(openSesame(sesameDataGet("EPICv2.8.SigDF")[[1]]), model, lift_over=TRUE)
-#' cmi_classify(openSesame(sesameDataGet('EPIC.1.SigDF')), model, lift_over=TRUE)
-#' cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, model, lift_over=TRUE)
+#' cmi_predict(openSesame(sesameDataGet("EPICv2.8.SigDF")[[1]]), model, lift_over=TRUE)
+#' cmi_predict(openSesame(sesameDataGet('EPIC.1.SigDF')), model, lift_over=TRUE)
+#' cmi_predict(sesameDataGet("HM450.1.TCGA.PAAD")$betas, model, lift_over=TRUE)
 #'
 #' @import stats
 #' @import tools
@@ -96,7 +96,7 @@ clean_features <- function(
 #' @importFrom sesame mLiftOver
 #' @importFrom methods is
 #' @export
-cmi_classify <- function(betas, cmi_model,
+cmi_predict <- function(betas, cmi_model,
     source_platform = NULL, lift_over = FALSE, verbose = FALSE,
     BPPARAM = SerialParam()) {
     
@@ -111,7 +111,7 @@ cmi_classify <- function(betas, cmi_model,
 
     if (is.matrix(betas)) {
         return(do.call(rbind, bplapply(seq_len(ncol(betas)), function(i) {
-            cmi_classify(betas[,i], cmi_model, source_platform = source_platform,
+            cmi_predict(betas[,i], cmi_model, source_platform = source_platform,
                 lift_over = lift_over, verbose = verbose)
         }, BPPARAM = BPPARAM)))
     }
