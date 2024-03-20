@@ -165,6 +165,7 @@ cmi_predict <- function(betas, cmi_model,
 #'
 #' @return print the versions of cytomethic and dependencies
 #' @importFrom utils packageVersion
+#' @importFrom BiocManager version
 #' @export
 #' @examples
 #' cmi_checkVersion()
@@ -175,7 +176,7 @@ cmi_checkVersion <- function() {
         "R, sesame, sesameData and ExperimentHub.\n",
         "Here is the current versions installed:\n",
         sprintf("R: %s.%s\n", rv$major, rv$minor),
-        sprintf("Bioconductor: %s\n", BiocManager::version()),
+        sprintf("Bioconductor: %s\n", version()),
         sprintf("CytoMethIC: %s\n", packageVersion("CytoMethIC")),
         sprintf("sesame: %s\n", packageVersion("sesame")),
         sprintf("sesameData: %s\n", packageVersion("sesameData")),
