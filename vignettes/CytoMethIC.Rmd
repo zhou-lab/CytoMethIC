@@ -65,36 +65,36 @@ random forest and support vector models from CytoMethIC models on
 ExperimentHub.
 
 ```{r cyto4, message=FALSE}
-cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, ExperimentHub()[["EH8395"]],
+cmi_predict(sesameDataGet("HM450.1.TCGA.PAAD")$betas, ExperimentHub()[["EH8395"]],
     lift_over=TRUE)
-cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, ExperimentHub()[["EH8396"]],
+cmi_predict(sesameDataGet("HM450.1.TCGA.PAAD")$betas, ExperimentHub()[["EH8396"]],
     lift_over=TRUE)
 ```
 
 # Pan-Cancer subtype classification
 
-The below snippet shows a demonstration of the cmi_classify function working to
+The below snippet shows a demonstration of the cmi_predict function working to
 predict the subtype of the cancer.
 
 ```{r cyto5, message=FALSE}
-cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, ExperimentHub()[["EH8422"]])
+cmi_predict(sesameDataGet("HM450.1.TCGA.PAAD")$betas, ExperimentHub()[["EH8422"]])
 ```
 
 # Ethnicity classification
 
-The below snippet shows a demonstration of the cmi_classify function working to
+The below snippet shows a demonstration of the cmi_predict function working to
 predict the ethnicity of the patient.
 
 ```{r cyto6, message=FALSE}
-cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, ExperimentHub()[["EH8421"]])
+cmi_predict(sesameDataGet("HM450.1.TCGA.PAAD")$betas, ExperimentHub()[["EH8421"]])
 ```
 # Pan-Cancer COO classification
 
-The below snippet shows a demonstration of the cmi_classify function working to
+The below snippet shows a demonstration of the cmi_predict function working to
 predict the cell of origin of the cancer.
 
 ```{r cyto7, message=FALSE}
-cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, ExperimentHub()[["EH8423"]])
+cmi_predict(sesameDataGet("HM450.1.TCGA.PAAD")$betas, ExperimentHub()[["EH8423"]])
 ```
 
 # Ethnicity From GitHub Link
@@ -107,7 +107,7 @@ be the most frequently updated public repository of our lab's classifiers.
 base_url <- "https://github.com/zhou-lab/CytoMethIC_models/raw/main/models"
 cmi_model <- readRDS(url(sprintf("%s/Race3_rfcTCGA_InfHum3.rds", base_url)))
 betas <- openSesame(sesameDataGet("EPICv2.8.SigDF")[[1]])
-cmi_classify(betas, cmi_model, lift_over=TRUE)
+cmi_predict(betas, cmi_model, lift_over=TRUE)
 ```
 
 ```{r}

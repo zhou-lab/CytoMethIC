@@ -5,18 +5,7 @@
 #' @name cmi_models
 #' @docType data
 #' @return master sheet of CytoMethIC model objects
-#' @examples print(cmi_models$ModelID)
-#' @export
-NULL
-
-#' Master data frame for all prediction labels
-#'
-#' This is an internal object which will be updated on every new release
-#'
-#' @name prediction_labels
-#' @docType data
-#' @return master sheet of prediction labels
-#' @examples print(prediction_labels)
+#' @examples print(cmi_models[,c("EHID","Title")])
 #' @export
 NULL
 
@@ -62,8 +51,8 @@ clean_features <- function(
     betas <- betas[features]
 }
 
-#' The cmi_classify function takes in a model and a sample, and uses the model
-#' to classify it.  This function supports randomForest, e1071::svm, xgboost,
+#' The cmi_predict function takes in a model and a sample, and uses the model
+#' to predict it.  This function supports randomForest, e1071::svm, xgboost,
 #' and keras/tensorflow models. For xgboost and keras models, the features used
 #' in classification as well as a label mapping must be provided for output.
 #' 
@@ -83,9 +72,9 @@ clean_features <- function(
 #'
 #' ## Cancer Type
 #' model = ExperimentHub()[["EH8395"]]
-#' cmi_classify(openSesame(sesameDataGet("EPICv2.8.SigDF")[[1]]), model, lift_over=TRUE)
-#' cmi_classify(openSesame(sesameDataGet('EPIC.1.SigDF')), model, lift_over=TRUE)
-#' cmi_classify(sesameDataGet("HM450.1.TCGA.PAAD")$betas, model, lift_over=TRUE)
+#' cmi_predict(openSesame(sesameDataGet("EPICv2.8.SigDF")[[1]]), model, lift_over=TRUE)
+#' cmi_predict(openSesame(sesameDataGet('EPIC.1.SigDF')), model, lift_over=TRUE)
+#' cmi_predict(sesameDataGet("HM450.1.TCGA.PAAD")$betas, model, lift_over=TRUE)
 #'
 #' @import stats
 #' @import tools
@@ -96,7 +85,7 @@ clean_features <- function(
 #' @importFrom sesame mLiftOver
 #' @importFrom methods is
 #' @export
-cmi_classify <- function(betas, cmi_model,
+cmi_predict <- function(betas, cmi_model,
     source_platform = NULL, lift_over = FALSE, verbose = FALSE,
     BPPARAM = SerialParam()) {
     
@@ -111,7 +100,7 @@ cmi_classify <- function(betas, cmi_model,
 
     if (is.matrix(betas)) {
         return(do.call(rbind, bplapply(seq_len(ncol(betas)), function(i) {
-            cmi_classify(betas[,i], cmi_model, source_platform = source_platform,
+            cmi_predict(betas[,i], cmi_model, source_platform = source_platform,
                 lift_over = lift_over, verbose = verbose)
         }, BPPARAM = BPPARAM)))
     }
@@ -169,3 +158,27 @@ cmi_classify <- function(betas, cmi_model,
 
 
 
+#' Check CytoMethIC versions
+#'
+#' print package verison of cytomethic and depended packages to help
+#' troubleshoot installation issues.
+#'
+#' @return print the versions of cytomethic and dependencies
+#' @importFrom utils packageVersion
+#' @export
+#' @examples
+#' cmi_checkVersion()
+cmi_checkVersion <- function() {
+    rv <- R.Version()
+    msg <- paste0(
+        "CytoMethIC requires matched versions of ",
+        "R, sesame, sesameData and ExperimentHub.\n",
+        "Here is the current versions installed:\n",
+        sprintf("R: %s.%s\n", rv$major, rv$minor),
+        sprintf("Bioconductor: %s\n", BiocManager::version()),
+        sprintf("CytoMethIC: %s\n", packageVersion("CytoMethIC")),
+        sprintf("sesame: %s\n", packageVersion("sesame")),
+        sprintf("sesameData: %s\n", packageVersion("sesameData")),
+        sprintf("ExperimentHub: %s\n", packageVersion("ExperimentHub")))
+    message(msg)
+}

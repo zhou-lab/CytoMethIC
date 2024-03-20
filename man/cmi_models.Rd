@@ -11,5 +11,5 @@ master sheet of CytoMethIC model objects
 This is an internal object which will be updated on every new release
 }
 \examples{
-print(cmi_models$ModelID)
+print(cmi_models[,c("EHID","Title")])
 }
