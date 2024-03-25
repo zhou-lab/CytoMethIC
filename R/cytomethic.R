@@ -111,7 +111,7 @@ cmi_predict <- function(betas, cmi_model,
         lift_over = lift_over, verbose = verbose)
 
     if (is(cmi_model$model, "function")) {
-        cmi_model$model(betas)
+        cmi_model$model(betas, cmi_model$model_data)
     } else if (is(cmi_model$model, "randomForest")) {
         requireNamespace("randomForest")
         res <- sort(predict(cmi_model$model,
