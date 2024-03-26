@@ -1,3 +1,9 @@
+CHANGES IN VERSION 0.99.26
+-------------------------
+  o Submission of CytoMethIC package.
+  o Fixed typos in documentation.
+  o Added cmi_checkVersion for user to ensure versions are coordinated
+
 CHANGES IN VERSION 0.99.21
 -------------------------
   o Submission of CytoMethIC package.
