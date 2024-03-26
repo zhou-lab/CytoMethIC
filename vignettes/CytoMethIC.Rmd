@@ -35,7 +35,7 @@ accessibility-limiting code required to utilize machine learning models in
 R. Our package provides this abstraction for RandomForest, e1071 Support
 Vector, Extreme Gradient Boosting, and Tensorflow models. This is paired with
 an ExperimentHub component, which contains our lab's models developed for
-epigenetic cancer classification and phenotyping. This includes CNS tumor
+epigenetic cancer classification and predicting phenotypes. This includes CNS tumor
 classification, Pan-cancer classification, race prediction, cell of origin
 classification, and subtype classification models.
 
@@ -60,7 +60,7 @@ kable(cmi_models[, c("ModelID", "PredictionLabelDescription")],
 
 # Pan-Cancer type classification
 
-The Below snippet shows a demonstration of the model abstraction working on
+The below snippet shows a demonstration of the model abstraction working on
 random forest and support vector models from CytoMethIC models on
 ExperimentHub.
 

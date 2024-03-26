@@ -3,7 +3,7 @@ Type: Package
 Title: DNA methylation-based classification and regression
 Description: This package provides DNA methylation-based prediction of cancer type, molecular signature and clinical
  outcomes. It provides convenience functions for missing value imputation, probe ID conversion, model interpretation
- and visualization. The package includes 3 models for classification of 33 tumor types and cell of origin. The package
+ and visualization. The package links to our models on ExperimentHub. The package
  currently supports HM450, EPIC and EPICv2.
 Version: 0.99.25
 Authors@R: c(person("Wanding", "Zhou", role = c("aut"),
